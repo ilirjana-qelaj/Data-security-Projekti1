@@ -1,0 +1,173 @@
+package foursquare;
+import java.util.Scanner;
+import java.util.ArrayList;
+import java.util.List;
+public class ds {
+	
+	
+	public static void main(String [] args) {
+		Scanner input=new Scanner(System.in);
+		System.out.print("Enter plaintext: ");
+		String plaintext=input.nextLine();
+		System.out.print("Enter key1:");
+		String key1=input.nextLine();
+		System.out.print("Enter key2:");
+		String key2=input.nextLine();
+		System.out.print("Enter e for encrypt :");
+		String choose=input.nextLine();
+		if(choose.equals("e"))
+		{
+			System.out.println("Encrypted text: "+encryptFS(plaintext,key1,key2));
+
+		}
+		System.out.println("Enter d to decrypt");
+		String choose1=input.nextLine();
+
+		if(choose1.equals("d"))
+		{
+			System.out.println("Decrypted text: "+decryptFS(encryptFS(plaintext,key1,key2),key1,key2));
+
+		}
+
+
+	
+		
+	}
+	 private static final char[] ALFABETI = "ABCDEFGHIJKLMNOPRSTUVWXYZ".toCharArray();
+
+	    private static final char[][] ALFABETI_KATROR = new char[5][5];
+
+	    //bllok statik per te populluar matricen alfabeti katror
+	    static {
+	        int x = 0, y = 0;
+	        for (char c : ALFABETI) {
+	            ALFABETI_KATROR[x][y] = c;
+	            x++;
+	            if (x == 5) {
+	                x = 0;
+	                y++;
+	            }
+	        }
+	    }
+
+
+	    private static String clean(String input) {
+	        input = input.trim().replace(" ", "").replace("Q", "").toUpperCase();
+	        StringBuilder clean = new StringBuilder();
+	        for (char c : input.toCharArray()) {
+	            if (Character.getType(c) == Character.UPPERCASE_LETTER) {
+	                clean.append(c);
+	            }
+	        }
+	        return clean.toString();
+	    }
+
+
+	     //Gjeneron nje table 5*5 te qelesave per fjalen kyqe te specifikuar
+	    private static char[][] generateKeyTable(String keyword) {
+	        keyword = clean(keyword);
+	        char[][] keyTable = new char[5][5];
+	        List<Character> used = new ArrayList<Character>();
+	        int x = 0, y = 0;
+	        for (char c : keyword.toCharArray()) {
+	            if (!used.contains(c)) {
+	                keyTable[x][y] = c;
+	                used.add(c);
+	                x++;
+	                if (x == 5) {
+	                    x = 0;
+	                    y++;
+	                    if (y == 5) {
+	                        return keyTable;
+	                    }
+	                }
+	            }
+	        }
+	        for (char c : ALFABETI) {
+	            if (!used.contains(c)) {
+	                keyTable[x][y] = c;
+	                x++;
+	                if (x == 5) {
+	                    x = 0;
+	                    y++;
+	                    if (y == 5) {
+	                        return keyTable;
+	                    }
+	                }
+	            }
+	        }
+	        return keyTable;
+	    }
+
+
+	    //ndan stringun ne stringje dy-shkronjeshe
+	    private static String[] split(String plaintext) {
+	        if (plaintext.length() % 2 != 0) {
+	            plaintext = plaintext + "X";
+	        }
+	        String[] pairs = new String[plaintext.length() / 2];//array i stringjeve dyshkronjeshe
+	        int count = 0;
+	        for (int i = 0; i < (plaintext.length() / 2); i++) {
+	            pairs[i] = plaintext.substring(count, count + 2);
+	            count = count + 2;
+	        }
+	        return pairs;
+	    }
+
+	    // enkriptimi i plaintekstit 
+	    public static String encryptFS(String plaintext, String keyword1, String keyword2) {
+	        plaintext = clean(plaintext);
+	        String[] pairs = split(plaintext);
+	        char[][] keytable1 = generateKeyTable(keyword1);
+	        char[][] keytable2 = generateKeyTable(keyword2);
+	        char first, second;
+	        int xFirst = 0, yFirst = 0, xSecond = 0, ySecond = 0;
+	        StringBuilder ciphertext = new StringBuilder();
+	        for (String s : pairs) {
+	            first = s.charAt(0);
+	            second = s.charAt(1);
+	            for (int y = 0; y < 5; y++) {
+	                for (int x = 0; x < 5; x++) {
+	                    if (ALFABETI_KATROR[x][y] == first) {
+	                        xFirst = x;
+	                        yFirst = y;
+	                    } else if (ALFABETI_KATROR[x][y] == second) {
+	                        xSecond = x;
+	                        ySecond = y;
+	                    }
+	                }
+	            }
+	            ciphertext.append(keytable1[xSecond][yFirst]).append(keytable2[xFirst][ySecond]);
+	        }
+	        return ciphertext.toString();
+	    }
+
+	    //dekriptimi
+	    public static String decryptFS(String ciphertext, String keyword1, String keyword2) {
+	        String[] pairs = split(ciphertext);
+	        char[][] keytable1 = generateKeyTable(keyword1);
+	        char[][] keytable2 = generateKeyTable(keyword2);
+	        char first, second;
+	        int xFirst = 0, yFirst = 0, xSecond = 0, ySecond = 0;
+	        StringBuilder plaintext = new StringBuilder();
+	        for (String s : pairs) {
+	            first = s.charAt(0);
+	            second = s.charAt(1);
+	            for (int y = 0; y < 5; y++) {
+	                for (int x = 0; x < 5; x++) {
+	                    if (keytable1[x][y] == first) {
+	                        xFirst = x;
+	                        yFirst = y;
+	                    } else if (keytable2[x][y] == second) {
+	                        xSecond = x;
+	                        ySecond = y;
+	                    }
+	                }
+	            }
+	            plaintext.append(ALFABETI_KATROR[xSecond][yFirst]).append(ALFABETI_KATROR[xFirst][ySecond]);
+	        }
+	        return plaintext.toString();
+	    }
+	
+}
+	
