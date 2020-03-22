@@ -6,7 +6,6 @@ import javax.swing.JOptionPane;
 
 public class Rail {
 
-	//qeto prej ketu i din besoj
 	
 	public static void main(String[] args) {
 	Scanner sc = new Scanner(System.in);
@@ -38,7 +37,7 @@ public class Rail {
 		System.out.println("Kontrolloni komandën e dhënë për veprimin e zgjedhur!");
 	}
 	
-	//deri ketu
+	
 
 	}
 	
