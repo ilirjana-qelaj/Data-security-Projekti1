@@ -1,5 +1,4 @@
-package Rail;
-
+package RailFence;
 import java.util.Scanner;
 
 import javax.swing.JOptionPane;
@@ -7,7 +6,7 @@ import javax.swing.JOptionPane;
 
 public class Rail {
 
-	
+	//qeto prej ketu i din besoj
 	
 	public static void main(String[] args) {
 	Scanner sc = new Scanner(System.in);
@@ -21,71 +20,90 @@ public class Rail {
 	System.out.println("Zgjedhni veprimin (1-për Enkriptim, 2-për Dekriptim):");
 	int veprimi = sc.nextInt();
 	
+	System.out.println("Zgjedhni formen e tekstit ne dalje (1-per rresht, 2-per shirita):");
+	int show = sc.nextInt();
+	
 	if(veprimi == 1)
 	{
-		enkripto(mesazhi, railsNr)
+		System.out.println("Mesazhi i enkriptuar: ");
+		System.out.print(enkriptoRailFence(mesazhi, railsNr, show));
 ;	}
 	else if(veprimi == 2)
 	{
-		dekripto(mesazhi, railsNr);
+		System.out.println("Mesazhi i dekriptuar: ");
+        System.out.print(dekriptoRailFence(mesazhi, railsNr, show));
 	}
 	else
 	{
 		System.out.println("Kontrolloni komandën e dhënë për veprimin e zgjedhur!");
 	}
 	
-	
+	//deri ketu
+
 	}
 	
-	private static void enkripto(String mesazhi, int shiritat)
+	private static String enkriptoRailFence(String mesazhi, int shiritat, int show)
 	{
-		String mesazhiEn = mesazhi.replaceAll("\\s+", "");//largimi i gjith hapsirave nga stringu
-		int gjatesiaM = mesazhiEn.length();//gjatesia e mesazhit per enkriptim
-		if(gjatesiaM > 0) // nese mesazhi ka permbajtje vazhdo me enkriptimin
+		String mesazhiEn = mesazhi.replaceAll("\\s+", "");
+		int gjatesiaM = mesazhiEn.length();
+		String cipher ="";
+		if(gjatesiaM > 0)
 		{	
-			int plotpjestimi = gjatesiaM % shiritat; // kontrollimi se a plotpjestohet gjatesia e mesazhit me numrin e shiritave veprimi % kthen mbetjen pas pjestimit
-			if(plotpjestimi == 0)// dmth nese ska mbetje perkatesisht gjatesia e mesazhit plotpjestohet me numrin e shiritave
+			int plotpjestimi = gjatesiaM % shiritat;
+			if(plotpjestimi == 0)
 			{
-				int kolonat = gjatesiaM/shiritat;// gjejm numrin e kolonave p.sh gjatesia e mesazhit 30 shiritat 5 do te jene 6 kolona
-				String[][] shkronjat = new String[shiritat][kolonat]; //matrica qe do te permbaje shkronjat
-				int shkronjaRadhes = 0; //per me dit sa me kercy 
+				int kolonat = gjatesiaM/shiritat;
+				String[][] shkronjat = new String[shiritat][kolonat];
+				int shkronjaRadhes = 0; 
 				for(int i = 0; i< shiritat; i++)
 				{
 					for(int j = 0; j < kolonat; j++)
 					{
 						shkronjat[i][j]=String.valueOf(mesazhiEn.charAt(shkronjaRadhes));
-						shkronjaRadhes = shkronjaRadhes + shiritat; //i tregon cila eshte shkronja e radhes qe duhet me marr
+						shkronjaRadhes = shkronjaRadhes + shiritat;
 						if(j==kolonat-1)
 						{
-							shkronjaRadhes = i+1; 
-							//dmth nese jemi te kolona e fundit i tregon qe shkronja e tadhes eshte ne poziten 1 (kete rast)
-							//sepse i kete rast eshte 0, por heren tjeter behet 1
-							//te mesazhit - per me kalu ne rreshtin e tjeter te matrices
+							shkronjaRadhes = i+1;
 						}
 						
 					}
 				}
-				System.out.println("Mesazhi i enkriptuar është:");
-				print2D(shkronjat);
+				//System.out.println("Mesazhi i enkriptuar është:");
+				if(show ==2)
+				{
+					for (int i = 0; i < shkronjat.length; i++) 
+					{	
+			            for (int j = 0; j < shkronjat[i].length; j++) {
+			                cipher = cipher + shkronjat[i][j] + " "; 
+					}
+					cipher = cipher + "\n";
+					}
+				}
+				else if(show ==1)
+				{	
+				for (int i = 0; i < shkronjat.length; i++) 
+		            for (int j = 0; j < shkronjat[i].length; j++) 
+		                cipher = cipher + shkronjat[i][j]; 
+				}
+				else
+				{
+					System.out.print("Gabim gjatë zgjedhjes së formatit të tekstit në dalje!");
+				}
+				
 				
 			}
 			else
 			{
 				if(gjatesiaM < shiritat)
 				{
-					System.out.print("Gjatësia e mesazhit tuaj është më e vogël sesa numri i shiritave të zgjedhur!");			
+					JOptionPane.showMessageDialog(null, "Gjatësia e mesazhit tuaj është më e vogël sesa numri i shiritave të zgjedhur!");			
 				}
 				else
 				{
-					/** ktu shtojm w aty ku mungon funksioni repeat e perserit shkronjen/stringun e caktuar aq her sa e ka parametrin brenda kllapave
-					 kete rast parametri eshte shiritat - plotpjestimi pasi ashtu i bie sipas matematikes
-					 p.sh nese per nje mesazh te gjate 13 karaktere zgjidhen 3 shirita i bie kah 5 shkronja per rresht, sepse nese i lojm 4 per 3 shirita 
-					 i kemi 12 shkronja nja na metet out, keshtuqe i kemi 5, mirepo 5 * 3 = 15 andaj duhet me i shtu 2 karaktere
-					 keter rast shiritat = 3, plotpjestimi = 13 % 3 = 1 sepse thash qe e kthen mbetjen 13/3=4 -> 4*3=12 mbetja 1
-					**/
+					
 					String mesazhiPlotesuar = mesazhiEn + "w".repeat(shiritat - plotpjestimi);
-					int kolonat = mesazhiPlotesuar.length()/shiritat;//tash kemi aq kolona sa hersi mes gjatesise se mesazhit pasi kem shtuar karakteret w
-					//pjesa tjeter njejt si me larte
+					int kolonat = mesazhiPlotesuar.length()/shiritat;
+					
 					String[][] shkronjat = new String[shiritat][kolonat]; 
 					int shkronjaRadhes = 0;
 					for(int i = 0; i< shiritat; i++)
@@ -101,25 +119,44 @@ public class Rail {
 							
 						}
 					}
-					System.out.println("Mesazhi i enkriptuar është:");
-					print2D(shkronjat);
+					//JOptionPane.showMessageDialog(null, "Mesazhi i enkriptuar është:");
+					if(show ==2)
+					{
+						for (int i = 0; i < shkronjat.length; i++) 
+						{	
+				            for (int j = 0; j < shkronjat[i].length; j++) {
+				                cipher = cipher + shkronjat[i][j] + " "; 
+						}
+						cipher = cipher + "\n";
+						}
+					}
+					else if(show ==1)
+					{	
+					for (int i = 0; i < shkronjat.length; i++) 
+			            for (int j = 0; j < shkronjat[i].length; j++) 
+			                cipher = cipher + shkronjat[i][j]; 
+					}
+					else
+					{
+						System.out.print("Gabim gjatë zgjedhjes së formatit të tekstit në dalje!");
+					}
 				}
 			 
 			}
 		}
-		else //nese mesazhi eshte i zbrazet lajmero perdoruesin
+		else 
 		{
-			System.out.print("Ju duhet të shkruani një mesazh për enkriptim!");
+			JOptionPane.showMessageDialog(null, "Ju duhet të shkruani një mesazh për enkriptim!");
 		}
-		
-        
+		return cipher;
 	}
 
-
-	private static void dekripto(String mesazhi, int shiritat)
+	
+	private static String dekriptoRailFence(String mesazhi, int shiritat, int show)
 	{
 		String mesazhiDe = mesazhi.replaceAll("\\s+", "");
 		int gjatesiaM = mesazhiDe.length();
+		String plain="";
 		if(gjatesiaM > 0)
 		{
 			int rreshtat = gjatesiaM/shiritat;
@@ -140,24 +177,35 @@ public class Rail {
 			}
 			
 			String mesazhiDekriptuar="";
+			if(show==2)
+			{
+				for (int i = 0; i < shkronjat.length; i++) 
+				{	
+		            for (int j = 0; j < shkronjat[i].length; j++)
+		            {
+		                mesazhiDekriptuar = mesazhiDekriptuar + shkronjat[i][j] + " ";
+		            }
+		            mesazhiDekriptuar = mesazhiDekriptuar + "\n";
+				}
+				plain = mesazhiDekriptuar.replace("w", "");
+			}
+			else if(show==1){
 	        for (int i = 0; i < shkronjat.length; i++) 
 	            for (int j = 0; j < shkronjat[i].length; j++) 
 	                mesazhiDekriptuar = mesazhiDekriptuar + shkronjat[i][j]; 
-	        System.out.println("Mesazhi i dekriptuar është: "+ mesazhiDekriptuar.replace("w", ""));
+	        
+	        plain = mesazhiDekriptuar.replace("w", "");
+			}
+			else
+			{
+				System.out.print("Gabim gjatë zgjedhjes së formatit të tekstit në dalje!");
+			}
 		}
 		else
 		{
-			System.out.print("Ju duhet të shkruani një mesazh për enkriptim!");
+			JOptionPane.showMessageDialog(null, "Ju duhet të shkruani një mesazh për enkriptim!");
 		}
+		return plain;
 	}
-	
-	
-	//funksioni per printimin e matrices ama jo me rreshta e kolona
-	public static void print2D(String mat[][]) 
-    {  
-        for (int i = 0; i < mat.length; i++) 
-            for (int j = 0; j < mat[i].length; j++) 
-                System.out.print(mat[i][j]); 
-    }
 
 }
