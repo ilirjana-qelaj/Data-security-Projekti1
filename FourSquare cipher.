@@ -15,17 +15,17 @@ public class ds {
 		String key2=input.nextLine();
 		System.out.print("Enter e for encrypt :");
 		String choose=input.nextLine();
+		System.out.print("Shtypni 'e' per Enkriptim ose 'd' per dekriptim :");
+		String choose=input.nextLine();
 		if(choose.equals("e"))
 		{
-			System.out.println("Encrypted text: "+encryptFS(plaintext,key1,key2));
+			System.out.println("Teksi i Enkriptuar eshte: "+encryptFS(plaintext,key1,key2));
 
 		}
-		System.out.println("Enter d to decrypt");
-		String choose1=input.nextLine();
-
-		if(choose1.equals("d"))
+	    
+	        else
 		{
-			System.out.println("Decrypted text: "+decryptFS(encryptFS(plaintext,key1,key2),key1,key2));
+			System.out.println("Teksi i Dekriptuar eshte: "+decryptFS(plaintext,key1,key2));
 
 		}
 
