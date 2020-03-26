@@ -39,26 +39,23 @@ public class ds {
 		Scanner input=new Scanner(System.in);
 		System.out.print("Jepni nje tekst: ");
 		String plaintext=input.nextLine();
-		System.out.print("Jepni çelesin e pare:");
+		System.out.print("Jepni Ã§elesin e pare:");
 		String key1=input.nextLine();
-		System.out.print("Jepni çelesin e dyte:");
+		System.out.print("Jepni Ã§elesin e dyte:");
 		String key2=input.nextLine();
-		System.out.print("Shtypni 'e' per Enkriptim :");
+		System.out.print("Shtypni 'e' per Enkriptim ose 'd' per dekriptim :");
 		String choose=input.nextLine();
 		if(choose.equals("e"))
 		{
 			System.out.println("Teksi i Enkriptuar eshte: "+encryptFS(plaintext,key1,key2));
 
 		}
-		System.out.println("Shtypni 'd' per Dekriptim");
-		String choose1=input.nextLine();
-
-		if(choose1.equals("d"))
+	    
+	        else
 		{
-			System.out.println("Teksi i Dekriptuar eshte: "+decryptFS(encryptFS(plaintext,key1,key2),key1,key2));
+			System.out.println("Teksi i Dekriptuar eshte: "+decryptFS(plaintext,key1,key2));
 
 		}
-
 
 	
 		
@@ -404,13 +401,13 @@ public class ds {
     public static void rail(String[] args) {
     	Scanner sc = new Scanner(System.in);
     	
-    	System.out.println("Shkruani mesazhin për enkriptim/dekriptim:");
+    	System.out.println("Shkruani mesazhin pÃ«r enkriptim/dekriptim:");
     	String mesazhi = sc.nextLine();
     	
     	System.out.print("Jepni numrin e shiritave<rails>:");
     	int railsNr = sc.nextInt();
     	
-    	System.out.println("Zgjedhni veprimin (1-për Enkriptim, 2-për Dekriptim):");
+    	System.out.println("Zgjedhni veprimin (1-pÃ«r Enkriptim, 2-pÃ«r Dekriptim):");
     	int veprimi = sc.nextInt();
     	
     	System.out.println("Zgjedhni formen e tekstit ne dalje (1-per rresht, 2-per shirita):");
@@ -428,7 +425,7 @@ public class ds {
     	}
     	else
     	{
-    		System.out.println("Kontrolloni komandën e dhënë për veprimin e zgjedhur!");
+    		System.out.println("Kontrolloni komandÃ«n e dhÃ«nÃ« pÃ«r veprimin e zgjedhur!");
     	}
     	
     	
@@ -461,7 +458,7 @@ public class ds {
     						
     					}
     				}
-    				//System.out.println("Mesazhi i enkriptuar është:");
+    				//System.out.println("Mesazhi i enkriptuar Ã«shtÃ«:");
     				if(show ==2)
     				{
     					for (int i = 0; i < shkronjat.length; i++) 
@@ -480,7 +477,7 @@ public class ds {
     				}
     				else
     				{
-    					System.out.print("Gabim gjatë zgjedhjes së formatit të tekstit në dalje!");
+    					System.out.print("Gabim gjatÃ« zgjedhjes sÃ« formatit tÃ« tekstit nÃ« dalje!");
     				}
     				
     				
@@ -489,7 +486,7 @@ public class ds {
     			{
     				if(gjatesiaM < shiritat)
     				{
-    					JOptionPane.showMessageDialog(null, "Gjatësia e mesazhit tuaj është më e vogël sesa numri i shiritave të zgjedhur!");			
+    					JOptionPane.showMessageDialog(null, "GjatÃ«sia e mesazhit tuaj Ã«shtÃ« mÃ« e vogÃ«l sesa numri i shiritave tÃ« zgjedhur!");			
     				}
     				else
     				{
@@ -512,7 +509,7 @@ public class ds {
     							
     						}
     					}
-    					//JOptionPane.showMessageDialog(null, "Mesazhi i enkriptuar është:");
+    					//JOptionPane.showMessageDialog(null, "Mesazhi i enkriptuar Ã«shtÃ«:");
     					if(show ==2)
     					{
     						for (int i = 0; i < shkronjat.length; i++) 
@@ -531,7 +528,7 @@ public class ds {
     					}
     					else
     					{
-    						System.out.print("Gabim gjatë zgjedhjes së formatit të tekstit në dalje!");
+    						System.out.print("Gabim gjatÃ« zgjedhjes sÃ« formatit tÃ« tekstit nÃ« dalje!");
     					}
     				}
     			 
@@ -539,7 +536,7 @@ public class ds {
     		}
     		else 
     		{
-    			JOptionPane.showMessageDialog(null, "Ju duhet të shkruani një mesazh për enkriptim!");
+    			JOptionPane.showMessageDialog(null, "Ju duhet tÃ« shkruani njÃ« mesazh pÃ«r enkriptim!");
     		}
     		return cipher;
     	}
@@ -591,12 +588,12 @@ public class ds {
     			}
     			else
     			{
-    				System.out.print("Gabim gjatë zgjedhjes së formatit të tekstit në dalje!");
+    				System.out.print("Gabim gjatÃ« zgjedhjes sÃ« formatit tÃ« tekstit nÃ« dalje!");
     			}
     		}
     		else
     		{
-    			JOptionPane.showMessageDialog(null, "Ju duhet të shkruani një mesazh për enkriptim!");
+    			JOptionPane.showMessageDialog(null, "Ju duhet tÃ« shkruani njÃ« mesazh pÃ«r enkriptim!");
     		}
     		return plain;
     	}
