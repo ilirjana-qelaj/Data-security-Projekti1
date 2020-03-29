@@ -6,28 +6,29 @@ public class ds {
 	
 	
 	public static void main(String [] args) {
-		Scanner input=new Scanner(System.in);
-		System.out.print("Enter plaintext: ");
-		String plaintext=input.nextLine();
-		System.out.print("Enter key1:");
-		String key1=input.nextLine();
-		System.out.print("Enter key2:");
-		String key2=input.nextLine();
-		System.out.print("Enter e for encrypt :");
-		String choose=input.nextLine();
-		System.out.print("Shtypni 'e' per Enkriptim ose 'd' per dekriptim :");
-		String choose=input.nextLine();
-		if(choose.equals("e"))
+		if(args[0].equals("four-square"))
+    		{
+    		  	foursq(args);	
+    		}
+        public static void foursq(String[] args) {
+    	
+			System.out.println("Teksti:"+args[2]);
+			System.out.println("Celesi i pare:"+args[3]);
+			System.out.println("Celesi i dyte:"+args[4]);
+		if (args[1].equals("encrypt"))
 		{
-			System.out.println("Teksi i Enkriptuar eshte: "+encryptFS(plaintext,key1,key2));
+			System.out.println("Teksi i Dekriptuar eshte: "+encryptFS(args[2],args[3],args[4]));
+		}
+		else if(args[1].equals("decrypt"))
+		{
+			System.out.println("Teksi i Dekriptuar eshte: "+decryptFS(args[2],args[3],args[4]));
 
 		}
-	    
-	        else
-		{
-			System.out.println("Teksi i Dekriptuar eshte: "+decryptFS(plaintext,key1,key2));
-
+		else {
+			System.out.println("Shtypet diqka gabim!!!");
+			System.exit(1);
 		}
+	}
 
 
 	
