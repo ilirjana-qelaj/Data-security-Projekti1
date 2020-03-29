@@ -10,6 +10,8 @@ public class ds {
     		{
     		  	foursq(args);	
     		}
+	}
+	
         public static void foursq(String[] args) {
     	
 			System.out.println("Teksti:"+args[2]);
