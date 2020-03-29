@@ -1,64 +1,319 @@
-import java.util.Scanner;
 import java.util.ArrayList;
 import java.util.List;
-import javax.swing.JOptionPane;
+
 
 
 public class ds {  
     public static void main(String [] args)
     {	
-    	Scanner in =new Scanner(System.in);
-    	System.out.println("Shtypni '1' ose 'f' per ta provuar komanden -Four Square-,");
-     	System.out.println("Shtypni '2' ose 'c' per ta provuar komanden -Count-,");
-     	System.out.println("Shtypni '3' ose 'r' per ta provuar komanden -Rail Fence-.");
-     	System.out.println("Shtypni nje shkronje ose nje numer:");
-    	String lex=in.nextLine();
-    	for(int i=0;i<lex.length();i++)
-    	{
-    		while(lex.charAt(i)!='1' && lex.charAt(i)!='2' && lex.charAt(i)!='3' && lex.charAt(i)!='f' && lex.charAt(i)!='c' && lex.charAt(i)!='r')
+    		while(!args[0].equals("four-square") && !args[0].equals("count") && !args[0].equals("rail-fence"))
     		{
     			System.out.println("-------------Error... Ju keni shtypur nje shkronje&numer tjeter.Provoni perseri-------------");
-    	     	System.out.println("Shtypni nje shkronje ose nje numer:");
-    	    	lex=in.nextLine();
-    		}
-    		if(lex.charAt(i)=='1' || lex.charAt(i)=='f')
+    	     	break;
+    		} 
+     	
+    		if(args[0].equals("four-square"))
     		{
     		  	foursq(args);	
     		}
-    		if(lex.charAt(i)=='2' || lex.charAt(i)=='c')
+    		else if(args[0].equals("count"))
     		{
-    		  	leximi();	
+    		  	leximi(args);	
     		}
-    		if(lex.charAt(i)=='3' || lex.charAt(i)=='r')
+    		else if(args[0].equals("rail-fence"))
     		{
-    		  	rail(args);	
-    		}		
+    			railFence(args);
+    		}
+    		    		
     }
+    
+    
+  //===================================================================================================
+  //Rail
+  //===================================================================================================
+    
+    public static boolean aEshteNr(String s)
+    {
+    	boolean rez = true;
+    	int gjatesia = s.length();
+    	if(gjatesia == 0)
+    	{
+    		rez = false;
+    	}
+    	else
+    	{
+    		for(int j = 0; j<gjatesia; j++)
+    		{
+    			rez = rez && Character.isDigit(s.charAt(j));
+    		}
+    	}
+    	
+    	
+    	
+		return rez;
+    	
     }
-    public static void foursq(String[] args) {
-		Scanner input=new Scanner(System.in);
-		System.out.print("Jepni nje tekst: ");
-		String plaintext=input.nextLine();
-		System.out.print("Jepni çelesin e pare:");
-		String key1=input.nextLine();
-		System.out.print("Jepni çelesin e dyte:");
-		String key2=input.nextLine();
-		System.out.print("Shtypni 'e' per Enkriptim ose 'd' per dekriptim :");
-		String choose=input.nextLine();
-		if(choose.equals("e"))
-		{
-			System.out.println("Teksi i Enkriptuar eshte: "+encryptFS(plaintext,key1,key2));
-
+    
+    
+    private static String enkriptoRailFence(String mesazhi, int shiritat, boolean show)
+	{
+		String mesazhiEn = mesazhi.replaceAll("\\s+", "");
+		int gjatesiaM = mesazhiEn.length();
+		String cipher ="";
+		if(gjatesiaM > 0)
+		{	
+			int plotpjestimi = gjatesiaM % shiritat;
+			if(plotpjestimi == 0)
+			{
+				int kolonat = gjatesiaM/shiritat;
+				String[][] shkronjat = new String[shiritat][kolonat];
+				int shkronjaRadhes = 0; 
+				for(int i = 0; i< shiritat; i++)
+				{
+					for(int j = 0; j < kolonat; j++)
+					{
+						shkronjat[i][j]=String.valueOf(mesazhiEn.charAt(shkronjaRadhes));
+						shkronjaRadhes = shkronjaRadhes + shiritat;
+						if(j==kolonat-1)
+						{
+							shkronjaRadhes = i+1;
+						}
+						
+					}
+				}
+				//System.out.println("Mesazhi i enkriptuar është:");
+				if(show)
+				{
+					for (int i = 0; i < shkronjat.length; i++) 
+					{	
+			            for (int j = 0; j < shkronjat[i].length; j++) {
+			                cipher = cipher + shkronjat[i][j] + " "; 
+					}
+					cipher = cipher + "\n";
+					}
+				}
+				else
+				{	
+				for (int i = 0; i < shkronjat.length; i++) 
+		            for (int j = 0; j < shkronjat[i].length; j++) 
+		                cipher = cipher + shkronjat[i][j]; 
+				}
+				
+				
+			}
+			else
+			{
+				if(gjatesiaM < shiritat)
+				{
+					System.out.println("Gjatësia e mesazhit tuaj është më e vogël sesa numri i shiritave të zgjedhur!");			
+				}
+				else
+				{
+					
+					String mesazhiPlotesuar = mesazhiEn + "w".repeat(shiritat - plotpjestimi);
+					int kolonat = mesazhiPlotesuar.length()/shiritat;
+					
+					String[][] shkronjat = new String[shiritat][kolonat]; 
+					int shkronjaRadhes = 0;
+					for(int i = 0; i< shiritat; i++)
+					{
+						for(int j = 0; j < kolonat; j++)
+						{
+							shkronjat[i][j]=String.valueOf(mesazhiPlotesuar.charAt(shkronjaRadhes));
+							shkronjaRadhes = shkronjaRadhes + shiritat;
+							if(j==kolonat-1)
+							{
+								shkronjaRadhes = i+1;
+							}
+							
+						}
+					}
+					if(show)
+					{
+						for (int i = 0; i < shkronjat.length; i++) 
+						{	
+				            for (int j = 0; j < shkronjat[i].length; j++) 
+				            {
+				                cipher = cipher + shkronjat[i][j] + " "; 
+				            }    
+				            cipher = cipher + "\n";
+						}
+						
+					}
+					else
+					{	
+					for (int i = 0; i < shkronjat.length; i++) 
+			            for (int j = 0; j < shkronjat[i].length; j++) 
+			                cipher = cipher + shkronjat[i][j]; 
+					}
+				}
+			 
+			}
 		}
-	    
-	        else
+		else 
 		{
-			System.out.println("Teksi i Dekriptuar eshte: "+decryptFS(plaintext,key1,key2));
-
+			System.out.println("Ju duhet të shkruani një mesazh për enkriptim!");
 		}
+		return cipher;
+	}
 
 	
-		
+	private static String dekriptoRailFence(String mesazhi, int shiritat, boolean show)
+	{
+		String mesazhiDe = mesazhi.replaceAll("\\s+", "");
+		int gjatesiaM = mesazhiDe.length();
+		String plain="";
+		if(gjatesiaM > 0)
+		{
+			int rreshtat = gjatesiaM/shiritat;
+			String[][] shkronjat = new String[rreshtat][shiritat]; 
+			int shkronjaRadhes = 0;  
+			for(int i = 0; i< rreshtat; i++)
+			{
+				for(int j = 0; j < shiritat; j++)
+				{
+					shkronjat[i][j]=String.valueOf(mesazhiDe.charAt(shkronjaRadhes));
+					shkronjaRadhes = shkronjaRadhes + rreshtat;
+					if(j==shiritat-1)
+					{
+						shkronjaRadhes = i+1; 
+					}
+					
+				}
+			}
+			
+			String mesazhiDekriptuar="";
+			if(show)
+			{
+				for (int i = 0; i < shkronjat.length; i++) 
+				{	
+		            for (int j = 0; j < shkronjat[i].length; j++)
+		            {
+		                mesazhiDekriptuar = mesazhiDekriptuar + shkronjat[i][j] + " ";
+		            }
+		            mesazhiDekriptuar = mesazhiDekriptuar + "\n";
+				}
+				plain = mesazhiDekriptuar.replace("w", "");
+			}
+			else {
+	        for (int i = 0; i < shkronjat.length; i++) 
+	            for (int j = 0; j < shkronjat[i].length; j++) 
+	                mesazhiDekriptuar = mesazhiDekriptuar + shkronjat[i][j]; 
+	        
+	        plain = mesazhiDekriptuar.replace("w", "");
+			}
+		}
+		else
+		{
+			System.out.println("Ju duhet të shkruani një mesazh për enkriptim!");
+		}
+		return plain;
+	}
+	
+    public static void railFence(String[] args)
+    {
+    	String veprimi = args[1];
+		int shiritat = 1;
+		if(aEshteNr(args[2]))
+		{
+			shiritat = Integer.valueOf(args[2]);
+		}
+		else
+		{
+			System.out.println("Argumenti i trete duhet te jete numer qe tregon se ne sa shirita te ndahet mesazhi!");
+			System.exit(0);
+		}
+		String tekstiHyrje = args[3];
+		if(veprimi.contentEquals("encrypt"))
+		{
+			if(args.length == 5)
+			{
+				if(args[4].equals("show"))
+				{
+					System.out.println("Teksti i enkriptuar:");
+					System.out.println(enkriptoRailFence(tekstiHyrje, shiritat, true ));
+				}
+				else
+				{
+					System.out.println("Per te shfaqur ciphertekstin te organizuar ne shirita argumenti i peste(i fundit) duhet te jete show.");
+					System.exit(0);
+				}
+				
+			}
+			else if(args.length == 4)
+			{
+				System.out.println("Teksti i enkriptuar:");
+				System.out.println(enkriptoRailFence(tekstiHyrje, shiritat, false));
+			}
+			else
+			{
+				System.out.println("Komanda duhet te jete kesisoj: ds rail-fence encrypt <rails> <plaintext>");
+				System.out.println("ose");
+				System.out.println("Komanda duhet te jete kesisoj: ds rail-fence encrypt <rails> <plaintext> show");
+				System.exit(0);
+				
+			}
+		}
+		else if(veprimi.contentEquals("decrypt"))
+		{
+			if(args.length == 5)
+			{
+				if(args[4].equals("show"))
+				{
+					System.out.println("Teksti i dekriptuar:");
+					System.out.println(dekriptoRailFence(tekstiHyrje, shiritat, true ));
+				}
+				else
+				{
+					System.out.println("Per te shfaqur ciphertekstin te organizuar ne shirita argumenti i peste(i fundit) duhet te jete show.");
+					System.exit(0);
+				}
+				
+			}
+			else if(args.length == 4)
+			{
+				System.out.println("Teksti i dekriptuar:");
+				System.out.println(dekriptoRailFence(tekstiHyrje, shiritat, false ));
+			}
+			else
+			{
+				System.out.println("Komanda duhet te jete kesisoj: ds rail-fence decrypt <rails> <plaintext>");
+				System.out.println("ose");
+				System.out.println("Komanda duhet te jete kesisoj: ds rail-fence decrypt <rails> <plaintext> show");
+				System.exit(0);
+			}
+		}
+		else
+		{
+			System.out.println("Veprimi i caktuar permes argumentit te dyte eshte shkruajtur gabim! Veprimet e mundshme jane encrypt dhe decrypt.");
+			System.exit(0);
+		}
+    }
+	
+	
+	
+	//===================================================================================================
+	//===================================================================================================
+	
+   
+    public static void foursq(String[] args) {
+    	
+			System.out.println("Teksti:"+args[2]);
+			System.out.println("Celesi i pare:"+args[3]);
+			System.out.println("Celesi i dyte:"+args[4]);
+		if (args[1].equals("encrypt"))
+		{
+			System.out.println("Teksi i Dekriptuar eshte: "+encryptFS(args[2],args[3],args[4]));
+		}
+		else if(args[1].equals("decrypt"))
+		{
+			System.out.println("Teksi i Dekriptuar eshte: "+decryptFS(args[2],args[3],args[4]));
+
+		}
+		else {
+			System.out.println("Shtypet diqka gabim!!!");
+			System.exit(1);
+		}
 	}
 	 private static final char[] ALFABETI = "ABCDEFGHIJKLMNOPRSTUVWXYZ".toCharArray();
 
@@ -79,7 +334,8 @@ public class ds {
 
 
 	    private static String clean(String input) {
-	        input = input.trim().replace(" ", "").replace("Q", "").toUpperCase();
+	    	//int a='"';
+	        input = input.trim().replace("", "").replace("Q", "").toUpperCase();
 	        StringBuilder clean = new StringBuilder();
 	        for (char c : input.toCharArray()) {
 	            if (Character.getType(c) == Character.UPPERCASE_LETTER) {
@@ -195,184 +451,131 @@ public class ds {
 	        }
 	        return plaintext.toString();
 	    }
-    public static void leximi() {  
-    	Scanner in =new Scanner(System.in);
-		String zgjedhja;
-		System.out.println("Shtypni '1' per te numruar fjalet,");
-		System.out.println("Shtypni '2' per te numruar shkronjat,");
-		System.out.println("Shtypni '3' per te numruar simbolet,");
-		System.out.println("Shtypni '4' per te numruar zanoret dhe bashketingelloret,");
-		System.out.println("Shtypni '5' per te numruar fjalit,");
-		System.out.println("Shtypni '6' per te numruar rreshtat,");
-		System.out.println("Shtypni '0' per te provuar te gjitha funksionet.");
-		System.out.println("Shtyp nje numer:");
-		  zgjedhja=in.nextLine(); 
-		  for(int i=0;i<zgjedhja.length();i++)
-		  {
-		  		while(Character.isLetter(zgjedhja.charAt(i))
-		  		 && zgjedhja.charAt(i)!='0' 
-				 && zgjedhja.charAt(i)!='1' 
-				 && zgjedhja.charAt(i)!='2' 
-				 && zgjedhja.charAt(i)!='3' 
-				 && zgjedhja.charAt(i)!='4' 
-				 && zgjedhja.charAt(i)!='5' 
-				 && zgjedhja.charAt(i)!='6'){
-			 System.out.println("-------------Error... Ju keni shtypur nje shkronje&numer tjeter.Provoni perseri-------------");
-				System.out.println("Shtypni '1' per te numruar fjalet," +"Shtypni '2' per te numruar shkronjat,");
-				System.out.println("Shtypni '3' per te numruar simbolet,"+"Shtypni '4' per te numruar zanoret dhe bashketingelloret,");
-				System.out.println("Shtypni '5' per te numruar fjalit,"+"Shtypni '6' per te numruar rreshtat,");
-				System.out.println("Shtypni '0' per te provuar te gjitha funksionet.");
-				System.out.println("Shtyp nje numer:");
-				zgjedhja=in.nextLine(); 
-		 }
-		 if (zgjedhja.charAt(i)=='0')
+    public static void leximi(String [] args) {  
+    	// nese nuk shtypet najnjona prej ktyne --Shtypet diqka gabim
+    	System.out.println("Teksti eshte:"+args[2]);
+    	while(!args[1].equals("all") && !args[1].equals("word") && !args[1].equals("letter") && !args[1].equals("symbol") && !args[1].equals("vowel") 
+    		&& !args[1].equals("sentences") && !args[1].equals("lines"))
+    	{
+    		System.out.println("Shtypet diqka gabim!!");
+    		break;
+    	}
+    	// nese argumenti i pare osht all ose word... e thirr at klase
+		 if (args[1].equals("all"))
 		 {
-			 allinone();
+			 allinone(args);
 		 }
-		 if (zgjedhja.charAt(i)=='1')
+		 else if (args[1].equals("word"))
 		 {
-			 word();
+			 wordcount(args);
 		 }
-		 if (zgjedhja.charAt(i)=='2') {
-			 letter();
+		 else if (args[1].equals("letter"))
+				 {
+			 lettercount(args);
 		 }
-		 if (zgjedhja.charAt(i)=='3')
+		 else if (args[1].equals("symbol"))
 		 {
-			 symbol();
+			 symbolcount(args);
 		 }
-		 if (zgjedhja.charAt(i)=='4')
+		 else if (args[1].equals("vowel"))
 		 {
-			 vowelscons();
+			 vowelscons12(args);
 		 }
-		 if (zgjedhja.charAt(i)=='5')
+		 else if (args[1].equals("sentences"))
 		 {
-			 sentences();
+			 sentences1(args);
 		 }
-		 if (zgjedhja.charAt(i)=='6')
+		 else if (args[1].equals("lines"))
 		 {
-			 lines();
+			 countLines(args);
 		 }
 		  }
-    }
-    public static void allinone() {
-    	Scanner in =new Scanner(System.in);
-		String plaintextall;
-    	 System.out.println("Jepni nje tekst: ");
-		 plaintextall=in.nextLine();
-		 System.out.println("Numri i rreshtave eshte:"+countLines(plaintextall)); 
-		 sentences1(plaintextall);  
-	     vowelscons12(plaintextall);  
-	     System.out.println("Numri i fjaleve eshte:"+wordcount(plaintextall));  
-	     System.out.println("Numri i simboleve eshte:"+symbolcount(plaintextall)); 
-	      System.out.println("Numri i shkronjave eshte:"+lettercount(plaintextall));  
+ 
+    public static void allinone(String [] args) {
+    	//i thirr krejt 
+		 countLines(args); 
+		 sentences1(args);  
+	     vowelscons12(args);  
+	     wordcount(args);  
+	     symbolcount(args); 
+	      lettercount(args);  
     }
 
-    public static void lines() {
-    	Scanner in =new Scanner(System.in);
-		String plaintext111;
-    	 System.out.println("Jepni nje tekst: ");
-		 plaintext111=in.nextLine();
-		 System.out.println("Numri i rreshtave eshte:"+countLines(plaintext111));   
-    }
-    
-    public static void sentences() {
-    	Scanner in =new Scanner(System.in);
-		String plaintext11;
-    	 System.out.println("Jepni nje tekst:");
-		 plaintext11=in.nextLine();
-		 sentences1(plaintext11);   
-    }
-    public static void vowelscons() {
-    	Scanner in =new Scanner(System.in);
-		String plaintext1;
-    	 System.out.println("Jepni nje tekst:");
-		 plaintext1=in.nextLine();
-	     vowelscons12(plaintext1);   
-    }
-    public static void word() {
-    	Scanner in =new Scanner(System.in);
-		String plaintext;
-    	 System.out.println("Jepni nje tekst:");
-		 plaintext=in.nextLine();
-	     System.out.println("Numri i fjaleve eshte:"+wordcount(plaintext));   
-    }
-    public static void symbol() {
-    	Scanner in =new Scanner(System.in);
-		String plaintexttt;
-    	 System.out.println("Jepni nje tekst: ");
-		 plaintexttt=in.nextLine();
-	     System.out.println("Numri i simboleve eshte:"+symbolcount(plaintexttt));   
-    }
-    public static void letter() {
-    	Scanner in =new Scanner(System.in);
-		String plaintextt;
-    	System.out.println("Jepni nje tekst:");
-		 plaintextt=in.nextLine();
-      System.out.println("Numri i shkronjave eshte:"+lettercount(plaintextt));   
-    }
-   static int wordcount(String plaintext)  
+    public static void wordcount(String [] args)  
     {  
+    	//per shkak se kur e shtyp ni tekst 'null' mdilke qe numri i fjaleve eshte 1 per qata osht if args==0 ...
       int countwords=1;
       int countwordsnull=0;
-      if (plaintext.length()==0)
+      if (args[2].length()==0)
       {
-      return countwordsnull;
+      System.out.println("Numri i fjaleve eshte:" +countwordsnull );
+      System.exit(1);
       }
-      for(int i=0;i<plaintext.length();i++)  
+      for(int i=0;i<args[2].length();i++)  
       {  
-          if (plaintext.charAt(i)==' ' && plaintext.charAt(0)!=' ')
+    	  // nese ka space ather rrite per njo fjalen
+          if (args[2].length()!=0 && args[2].charAt(i)==' ' && args[2].charAt(0)!=' ')
           	countwords++;
       }  
       
-        return countwords;  
+        System.out.println("Numri i fjaleve eshte:"+countwords) ;
     } 
-    static int lettercount(String plaintextt)  
+    public static void lettercount(String [] args)  
     {  
       int countletter=0;
       
-      for(int i = 0; i < plaintextt.length(); i++) {    
-          if(Character.isLetter(plaintextt.charAt(i)))
+      for(int i = 0; i < args[2].length(); i++) {    
+    	  //nese osht shkronje rrite per nje shkronjen
+          if(Character.isLetter(args[2].charAt(i)))
         	  countletter++;    
       }    
-      return countletter;
+      System.out.println("Numri i shkronjave eshte:"+countletter);
     }
-    static int symbolcount(String plaintexttt)  
+    public static void symbolcount(String [] args)  
     {  
       int countsymbol=0;
-      
-      
-	for(int i = 0; i < plaintexttt.length(); i++) { 
-    	  plaintexttt.charAt(i);
-    	  		if(plaintexttt.charAt(i)=='~' || 
-    	  				plaintexttt.charAt(i)=='`' || plaintexttt.charAt(i)=='!' || plaintexttt.charAt(i)=='@' || 
-    	  				plaintexttt.charAt(i)=='#' || plaintexttt.charAt(i)=='$' || 
-    	  				plaintexttt.charAt(i)=='%' || plaintexttt.charAt(i)=='^' || plaintexttt.charAt(i)=='&' ||
-    	  				plaintexttt.charAt(i)=='*' || plaintexttt.charAt(i)=='(' || plaintexttt.charAt(i)==')' || 
-    	  				plaintexttt.charAt(i)=='[' || plaintexttt.charAt(i)==']' || plaintexttt.charAt(i)=='{' || 
-    	  				plaintexttt.charAt(i)=='}' || plaintexttt.charAt(i)=='/' || plaintexttt.charAt(i)=='.' ||
-    	  				plaintexttt.charAt(i)==',' || plaintexttt.charAt(i)=='=' || plaintexttt.charAt(i)=='+' ||
-    	  				plaintexttt.charAt(i)=='-' || plaintexttt.charAt(i)==':' || plaintexttt.charAt(i)==';' || 
-    	  				plaintexttt.charAt(i)=='|' || plaintexttt.charAt(i)=='<' || plaintexttt.charAt(i)=='>' ||
-    	  				plaintexttt.charAt(i)=='"' || plaintexttt.charAt(i)=='_')
+      	for(int i = 0; i < args[2].length(); i++) { 
+    	  args[2].charAt(i);
+    	  // nese osht najnjana prej atyne simboleve (krejt qato simbole) rrite per njo simbolet 
+    	  // kemi mujt me bo edhe 
+    	  //if (!Character.isLetter(args[2].charAt(i)) && !Character.isDigit(args[2].charAt(i)) nese nuk osht as shkronje as numer 
+    	  // rrite simbolin
+    	  		/*if(args[2].charAt(i)=='~' || 
+    	  				args[2].charAt(i)=='`' || args[2].charAt(i)=='!' || args[2].charAt(i)=='@' || 
+    	  				args[2].charAt(i)=='#' || args[2].charAt(i)=='$' || 
+    	  				args[2].charAt(i)=='%' || args[2].charAt(i)=='^' || args[2].charAt(i)=='&' ||
+    	  				args[2].charAt(i)=='*' || args[2].charAt(i)=='(' || args[2].charAt(i)==')' || 
+    	  				args[2].charAt(i)=='[' || args[2].charAt(i)==']' || args[2].charAt(i)=='{' || 
+    	  				args[2].charAt(i)=='}' || args[2].charAt(i)=='/' || args[2].charAt(i)=='.' ||
+    	  				args[2].charAt(i)==',' || args[2].charAt(i)=='=' || args[2].charAt(i)=='+' ||
+    	  				args[2].charAt(i)=='-' || args[2].charAt(i)==':' || args[2].charAt(i)==';' || 
+    	  				args[2].charAt(i)=='|' || args[2].charAt(i)=='<' || args[2].charAt(i)=='>' ||
+    	  				args[2].charAt(i)=='"' || args[2].charAt(i)=='_')
+    	  			*/
+    	  if(!Character.isLetter(args[2].charAt(i)) && !Character.isDigit(args[2].charAt(i)) && args[2].charAt(i)!=' ')
+    	  		
     	  {
         	 
               countsymbol++;
       }    
     }
-      return countsymbol;
+      System.out.println("Numri i simboleve eshte:"+countsymbol);
     }
-    public static void vowelscons12(String plaintext1)
+    public static void vowelscons12(String [] args)
     {
     	int vowels=0;
     	int cons=0;
-    	for (int i=0;i<plaintext1.length();i++)
+    	for (int i=0;i<args[2].length();i++)
     	{
-    		if(plaintext1.charAt(i)=='a' || plaintext1.charAt(i)=='e'
-    				|| plaintext1.charAt(i)=='i' || plaintext1.charAt(i)=='o' 
-    				|| plaintext1.charAt(i)=='u' || plaintext1.charAt(i)=='y'
-    				|| plaintext1.charAt(i)=='A' || plaintext1.charAt(i)=='E' 
-    				|| plaintext1.charAt(i)=='I' || plaintext1.charAt(i)=='O' 
-    				|| plaintext1.charAt(i)=='U' || plaintext1.charAt(i)=='Y' )
+    		// nese e shtyp njanen prej ktyne shkronjave rrite vowels (zanoren)
+    		// edhe nqofse osht shkronje
+    		if (Character.isLetter(args[2].charAt(i))) {
+    		if(args[2].charAt(i)=='a' || args[2].charAt(i)=='e'
+    				|| args[2].charAt(i)=='i' || args[2].charAt(i)=='o' 
+    				|| args[2].charAt(i)=='u' || args[2].charAt(i)=='y'
+    				|| args[2].charAt(i)=='A' || args[2].charAt(i)=='E' 
+    				|| args[2].charAt(i)=='I' || args[2].charAt(i)=='O' 
+    				|| args[2].charAt(i)=='U' || args[2].charAt(i)=='Y' )
     		{
     			vowels++;
     		}
@@ -380,224 +583,25 @@ public class ds {
     			cons++;
     			}
     	}
+    	}
     	System.out.println("Numri i zanoreve eshte:" +vowels); 
     	System.out.println("Numri i bashketingelloreve eshte:" +cons);
     }
-    public static void sentences1(String plaintext11)
+    public static void sentences1(String [] args)
 	{
+    	//logjikisht ni fjali fillon nqofse kemi . ose ! ose ? kshtu qe nqofse kemi najnjo prej ktyne simbolev rritet edhe fjalia 
 		int sent=0;
-		for(int i=0;i<plaintext11.length();i++)
+		for(int i=0;i<args[2].length();i++)
 		{
-			if(plaintext11.charAt(i)=='!' || plaintext11.charAt(i)=='?' || plaintext11.charAt(i)=='.')
+			if(args[2].charAt(i)=='!' || args[2].charAt(i)=='?' || args[2].charAt(i)=='.')
 				sent++;
 		}
 		System.out.println("Numri i fjalive eshte:" +sent);
 	}
 	//Prej internetit//
-    static int countLines(String plaintext111){
-    	   String[] lines = plaintext111.split("\r\n|\r|\n");
-    	   return  lines.length;
-    	}
-    public static void rail(String[] args) {
-    	Scanner sc = new Scanner(System.in);
-    	
-    	System.out.println("Shkruani mesazhin për enkriptim/dekriptim:");
-    	String mesazhi = sc.nextLine();
-    	
-    	System.out.print("Jepni numrin e shiritave<rails>:");
-    	int railsNr = sc.nextInt();
-    	
-    	System.out.println("Zgjedhni veprimin (1-për Enkriptim, 2-për Dekriptim):");
-    	int veprimi = sc.nextInt();
-    	
-    	System.out.println("Zgjedhni formen e tekstit ne dalje (1-per rresht, 2-per shirita):");
-    	int show = sc.nextInt();
-    	
-    	if(veprimi == 1)
-    	{
-    		System.out.println("Mesazhi i enkriptuar: ");
-    		System.out.print(enkriptoRailFence(mesazhi, railsNr, show));
-    ;	}
-    	else if(veprimi == 2)
-    	{
-    		System.out.println("Mesazhi i dekriptuar: ");
-            System.out.print(dekriptoRailFence(mesazhi, railsNr, show));
-    	}
-    	else
-    	{
-    		System.out.println("Kontrolloni komandën e dhënë për veprimin e zgjedhur!");
-    	}
-    	
-    	
-
-    	}
-    	
-    	private static String enkriptoRailFence(String mesazhi, int shiritat, int show)
-    	{
-    		String mesazhiEn = mesazhi.replaceAll("\\s+", "");
-    		int gjatesiaM = mesazhiEn.length();
-    		String cipher ="";
-    		if(gjatesiaM > 0)
-    		{	
-    			int plotpjestimi = gjatesiaM % shiritat;
-    			if(plotpjestimi == 0)
-    			{
-    				int kolonat = gjatesiaM/shiritat;
-    				String[][] shkronjat = new String[shiritat][kolonat];
-    				int shkronjaRadhes = 0; 
-    				for(int i = 0; i< shiritat; i++)
-    				{
-    					for(int j = 0; j < kolonat; j++)
-    					{
-    						shkronjat[i][j]=String.valueOf(mesazhiEn.charAt(shkronjaRadhes));
-    						shkronjaRadhes = shkronjaRadhes + shiritat;
-    						if(j==kolonat-1)
-    						{
-    							shkronjaRadhes = i+1;
-    						}
-    						
-    					}
-    				}
-    				//System.out.println("Mesazhi i enkriptuar është:");
-    				if(show ==2)
-    				{
-    					for (int i = 0; i < shkronjat.length; i++) 
-    					{	
-    			            for (int j = 0; j < shkronjat[i].length; j++) {
-    			                cipher = cipher + shkronjat[i][j] + " "; 
-    					}
-    					cipher = cipher + "\n";
-    					}
-    				}
-    				else if(show ==1)
-    				{	
-    				for (int i = 0; i < shkronjat.length; i++) 
-    		            for (int j = 0; j < shkronjat[i].length; j++) 
-    		                cipher = cipher + shkronjat[i][j]; 
-    				}
-    				else
-    				{
-    					System.out.print("Gabim gjatë zgjedhjes së formatit të tekstit në dalje!");
-    				}
-    				
-    				
-    			}
-    			else
-    			{
-    				if(gjatesiaM < shiritat)
-    				{
-    					JOptionPane.showMessageDialog(null, "Gjatësia e mesazhit tuaj është më e vogël sesa numri i shiritave të zgjedhur!");			
-    				}
-    				else
-    				{
-    					
-    					String mesazhiPlotesuar = mesazhiEn + "w".repeat(shiritat - plotpjestimi);
-    					int kolonat = mesazhiPlotesuar.length()/shiritat;
-    					
-    					String[][] shkronjat = new String[shiritat][kolonat]; 
-    					int shkronjaRadhes = 0;
-    					for(int i = 0; i< shiritat; i++)
-    					{
-    						for(int j = 0; j < kolonat; j++)
-    						{
-    							shkronjat[i][j]=String.valueOf(mesazhiPlotesuar.charAt(shkronjaRadhes));
-    							shkronjaRadhes = shkronjaRadhes + shiritat;
-    							if(j==kolonat-1)
-    							{
-    								shkronjaRadhes = i+1;
-    							}
-    							
-    						}
-    					}
-    					//JOptionPane.showMessageDialog(null, "Mesazhi i enkriptuar është:");
-    					if(show ==2)
-    					{
-    						for (int i = 0; i < shkronjat.length; i++) 
-    						{	
-    				            for (int j = 0; j < shkronjat[i].length; j++) {
-    				                cipher = cipher + shkronjat[i][j] + " "; 
-    						}
-    						cipher = cipher + "\n";
-    						}
-    					}
-    					else if(show ==1)
-    					{	
-    					for (int i = 0; i < shkronjat.length; i++) 
-    			            for (int j = 0; j < shkronjat[i].length; j++) 
-    			                cipher = cipher + shkronjat[i][j]; 
-    					}
-    					else
-    					{
-    						System.out.print("Gabim gjatë zgjedhjes së formatit të tekstit në dalje!");
-    					}
-    				}
-    			 
-    			}
-    		}
-    		else 
-    		{
-    			JOptionPane.showMessageDialog(null, "Ju duhet të shkruani një mesazh për enkriptim!");
-    		}
-    		return cipher;
-    	}
-
-    	
-    	private static String dekriptoRailFence(String mesazhi, int shiritat, int show)
-    	{
-    		String mesazhiDe = mesazhi.replaceAll("\\s+", "");
-    		int gjatesiaM = mesazhiDe.length();
-    		String plain="";
-    		if(gjatesiaM > 0)
-    		{
-    			int rreshtat = gjatesiaM/shiritat;
-    			String[][] shkronjat = new String[rreshtat][shiritat]; 
-    			int shkronjaRadhes = 0;  
-    			for(int i = 0; i< rreshtat; i++)
-    			{
-    				for(int j = 0; j < shiritat; j++)
-    				{
-    					shkronjat[i][j]=String.valueOf(mesazhiDe.charAt(shkronjaRadhes));
-    					shkronjaRadhes = shkronjaRadhes + rreshtat;
-    					if(j==shiritat-1)
-    					{
-    						shkronjaRadhes = i+1; 
-    					}
-    					
-    				}
-    			}
-    			
-    			String mesazhiDekriptuar="";
-    			if(show==2)
-    			{
-    				for (int i = 0; i < shkronjat.length; i++) 
-    				{	
-    		            for (int j = 0; j < shkronjat[i].length; j++)
-    		            {
-    		                mesazhiDekriptuar = mesazhiDekriptuar + shkronjat[i][j] + " ";
-    		            }
-    		            mesazhiDekriptuar = mesazhiDekriptuar + "\n";
-    				}
-    				plain = mesazhiDekriptuar.replace("w", "");
-    			}
-    			else if(show==1){
-    	        for (int i = 0; i < shkronjat.length; i++) 
-    	            for (int j = 0; j < shkronjat[i].length; j++) 
-    	                mesazhiDekriptuar = mesazhiDekriptuar + shkronjat[i][j]; 
-    	        
-    	        plain = mesazhiDekriptuar.replace("w", "");
-    			}
-    			else
-    			{
-    				System.out.print("Gabim gjatë zgjedhjes së formatit të tekstit në dalje!");
-    			}
-    		}
-    		else
-    		{
-    			JOptionPane.showMessageDialog(null, "Ju duhet të shkruani një mesazh për enkriptim!");
-    		}
-    		return plain;
-    	}
-
-}
-
-
+    //nese dalim nrresht tri me njonen prej ktyne \r\n... rrite rreshtin
+    public static void countLines(String [] args){
+    	   String[] lines = args[2].split("\r\n|\r|\n");
+    	   System.out.println("Numri i rreshtave eshte:"+ lines.length);
+    	} 
+    }
