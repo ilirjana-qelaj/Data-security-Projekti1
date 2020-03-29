@@ -1,47 +1,27 @@
-package RailFence;
-import java.util.Scanner;
-
-import javax.swing.JOptionPane;
-
-
-public class Rail {
-
-	
-	public static void main(String[] args) {
-	Scanner sc = new Scanner(System.in);
-	
-	System.out.println("Shkruani mesazhin për enkriptim/dekriptim:");
-	String mesazhi = sc.nextLine();
-	
-	System.out.print("Jepni numrin e shiritave<rails>:");
-	int railsNr = sc.nextInt();
-	
-	System.out.println("Zgjedhni veprimin (1-për Enkriptim, 2-për Dekriptim):");
-	int veprimi = sc.nextInt();
-	
-	System.out.println("Zgjedhni formen e tekstit ne dalje (1-per rresht, 2-per shirita):");
-	int show = sc.nextInt();
-	
-	if(veprimi == 1)
-	{
-		System.out.println("Mesazhi i enkriptuar: ");
-		System.out.print(enkriptoRailFence(mesazhi, railsNr, show));
-;	}
-	else if(veprimi == 2)
-	{
-		System.out.println("Mesazhi i dekriptuar: ");
-        System.out.print(dekriptoRailFence(mesazhi, railsNr, show));
-	}
-	else
-	{
-		System.out.println("Kontrolloni komandën e dhënë për veprimin e zgjedhur!");
-	}
-	
-	
-
-	}
-	
-	private static String enkriptoRailFence(String mesazhi, int shiritat, int show)
+    public static boolean aEshteNr(String s)
+    {
+    	boolean rez = true;
+    	int gjatesia = s.length();
+    	if(gjatesia == 0)
+    	{
+    		rez = false;
+    	}
+    	else
+    	{
+    		for(int j = 0; j<gjatesia; j++)
+    		{
+    			rez = rez && Character.isDigit(s.charAt(j));
+    		}
+    	}
+    	
+    	
+    	
+		return rez;
+    	
+    }
+    
+    
+    private static String enkriptoRailFence(String mesazhi, int shiritat, boolean show)
 	{
 		String mesazhiEn = mesazhi.replaceAll("\\s+", "");
 		int gjatesiaM = mesazhiEn.length();
@@ -68,7 +48,7 @@ public class Rail {
 					}
 				}
 				//System.out.println("Mesazhi i enkriptuar është:");
-				if(show ==2)
+				if(show)
 				{
 					for (int i = 0; i < shkronjat.length; i++) 
 					{	
@@ -78,15 +58,11 @@ public class Rail {
 					cipher = cipher + "\n";
 					}
 				}
-				else if(show ==1)
+				else
 				{	
 				for (int i = 0; i < shkronjat.length; i++) 
 		            for (int j = 0; j < shkronjat[i].length; j++) 
 		                cipher = cipher + shkronjat[i][j]; 
-				}
-				else
-				{
-					System.out.print("Gabim gjatë zgjedhjes së formatit të tekstit në dalje!");
 				}
 				
 				
@@ -95,7 +71,7 @@ public class Rail {
 			{
 				if(gjatesiaM < shiritat)
 				{
-					JOptionPane.showMessageDialog(null, "Gjatësia e mesazhit tuaj është më e vogël sesa numri i shiritave të zgjedhur!");			
+					System.out.println("Gjatësia e mesazhit tuaj është më e vogël sesa numri i shiritave të zgjedhur!");			
 				}
 				else
 				{
@@ -119,25 +95,23 @@ public class Rail {
 						}
 					}
 					//JOptionPane.showMessageDialog(null, "Mesazhi i enkriptuar është:");
-					if(show ==2)
+					if(show)
 					{
 						for (int i = 0; i < shkronjat.length; i++) 
 						{	
-				            for (int j = 0; j < shkronjat[i].length; j++) {
+				            for (int j = 0; j < shkronjat[i].length; j++) 
+				            {
 				                cipher = cipher + shkronjat[i][j] + " "; 
+				            }    
+				            cipher = cipher + "\n";
 						}
-						cipher = cipher + "\n";
-						}
+						
 					}
-					else if(show ==1)
+					else
 					{	
 					for (int i = 0; i < shkronjat.length; i++) 
 			            for (int j = 0; j < shkronjat[i].length; j++) 
 			                cipher = cipher + shkronjat[i][j]; 
-					}
-					else
-					{
-						System.out.print("Gabim gjatë zgjedhjes së formatit të tekstit në dalje!");
 					}
 				}
 			 
@@ -145,13 +119,13 @@ public class Rail {
 		}
 		else 
 		{
-			JOptionPane.showMessageDialog(null, "Ju duhet të shkruani një mesazh për enkriptim!");
+			System.out.println("Ju duhet të shkruani një mesazh për enkriptim!");
 		}
 		return cipher;
 	}
 
 	
-	private static String dekriptoRailFence(String mesazhi, int shiritat, int show)
+	private static String dekriptoRailFence(String mesazhi, int shiritat, boolean show)
 	{
 		String mesazhiDe = mesazhi.replaceAll("\\s+", "");
 		int gjatesiaM = mesazhiDe.length();
@@ -176,7 +150,7 @@ public class Rail {
 			}
 			
 			String mesazhiDekriptuar="";
-			if(show==2)
+			if(show)
 			{
 				for (int i = 0; i < shkronjat.length; i++) 
 				{	
@@ -188,23 +162,99 @@ public class Rail {
 				}
 				plain = mesazhiDekriptuar.replace("w", "");
 			}
-			else if(show==1){
+			else {
 	        for (int i = 0; i < shkronjat.length; i++) 
 	            for (int j = 0; j < shkronjat[i].length; j++) 
 	                mesazhiDekriptuar = mesazhiDekriptuar + shkronjat[i][j]; 
 	        
 	        plain = mesazhiDekriptuar.replace("w", "");
 			}
+		}
+		else
+		{
+			System.out.println("Ju duhet të shkruani një mesazh për enkriptim!");
+		}
+		return plain;
+	}
+	
+    public static void railFence(String[] args)
+    {
+    	String veprimi = args[1];
+		int shiritat = 1;
+		if(aEshteNr(args[2]))
+		{
+			shiritat = Integer.valueOf(args[2]);
+		}
+		else
+		{
+			System.out.println("Argumenti i trete duhet te jete numer qe tregon se ne sa shirita te ndahet mesazhi!");
+			System.exit(0);
+		}
+		String tekstiHyrje = args[3];
+		if(veprimi.contentEquals("encrypt"))
+		{
+			if(args.length == 5)
+			{
+				if(args[4].equals("show"))
+				{
+					System.out.println("Teksti i enkriptuar:");
+					System.out.println(enkriptoRailFence(tekstiHyrje, shiritat, true ));
+				}
+				else
+				{
+					System.out.println("Per te shfaqur ciphertekstin te organizuar ne shirita argumenti i peste(i fundit) duhet te jete show.");
+					System.exit(0);
+				}
+				
+			}
+			else if(args.length == 4)
+			{
+				System.out.println("Teksti i enkriptuar:");
+				System.out.println(enkriptoRailFence(tekstiHyrje, shiritat, false));
+			}
 			else
 			{
-				System.out.print("Gabim gjatë zgjedhjes së formatit të tekstit në dalje!");
+				System.out.println("Komanda duhet te jete kesisoj: ds rail-fence encrypt <rails> <plaintext>");
+				System.out.println("ose");
+				System.out.println("Komanda duhet te jete kesisoj: ds rail-fence encrypt <rails> <plaintext> show");
+				System.exit(0);
+				
+			}
+		}
+		else if(veprimi.contentEquals("decrypt"))
+		{
+			if(args.length == 5)
+			{
+				if(args[4].equals("show"))
+				{
+					System.out.println("Teksti i dekriptuar:");
+					System.out.println(dekriptoRailFence(tekstiHyrje, shiritat, true ));
+				}
+				else
+				{
+					System.out.println("Per te shfaqur ciphertekstin te organizuar ne shirita argumenti i peste(i fundit) duhet te jete show.");
+					System.exit(0);
+				}
+				
+			}
+			else if(args.length == 4)
+			{
+				System.out.println("Teksti i dekriptuar:");
+				System.out.println(dekriptoRailFence(tekstiHyrje, shiritat, false ));
+			}
+			else
+			{
+				System.out.println("Komanda duhet te jete kesisoj: ds rail-fence decrypt <rails> <plaintext>");
+				System.out.println("ose");
+				System.out.println("Komanda duhet te jete kesisoj: ds rail-fence decrypt <rails> <plaintext> show");
+				System.exit(0);
 			}
 		}
 		else
 		{
-			JOptionPane.showMessageDialog(null, "Ju duhet të shkruani një mesazh për enkriptim!");
+			System.out.println("Veprimi i caktuar permes argumentit te dyte eshte shkruajtur gabim! Veprimet e mundshme jane encrypt dhe decrypt.");
+			System.exit(0);
 		}
-		return plain;
-	}
+    }
+	
 
-}
