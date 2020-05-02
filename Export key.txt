@@ -1,0 +1,186 @@
+ public static void exportKey(String[] args)
+    {
+    	
+    	if(args.length == 3)
+		{
+    		Scanner sc;
+			if(args[1].equals("public"))
+			{
+				String fajlliPerEksportimPub = "C:/Users/Jetlira/Desktop/"+args[2]+".pub.xml";
+				File filePu = new File(fajlliPerEksportimPub);
+				boolean existsPu = filePu.exists();
+				if(existsPu)
+				{
+					try {
+						sc = new Scanner(filePu);
+						while (sc.hasNextLine()) 
+							System.out.println(sc.nextLine());
+					} catch (FileNotFoundException e) {
+						
+						e.printStackTrace();
+					}
+				}
+				else
+				{
+					System.out.println("Celesi publik '"+args[2]+".pub.xml' nuk ekziston!");
+				}
+			}
+			else if(args[1].equals("private"))
+			{
+				String fajlliPerEksportimPri = "C:/Users/Jetlira/Desktop/"+args[2]+".xml";
+		    	File filePri = new File(fajlliPerEksportimPri);
+				boolean existsPr = filePri.exists();
+				
+				if(existsPr)
+				{
+					try {
+						sc = new Scanner(filePri);
+						while (sc.hasNextLine()) 
+							System.out.println(sc.nextLine());
+					} catch (FileNotFoundException e) {
+						
+						e.printStackTrace();
+					}
+				}
+				else
+				{
+					System.out.println("Celesi privat '"+args[2]+".xml' nuk ekziston!");
+				}
+			}
+			else
+			{
+				System.out.println("Argumenti i dytë eshte shkruajtur gabim, argumenti i dyte duhet te jete public ode private!");
+			}
+		}
+    	else if(args.length == 4)
+    	{
+    		if(args[1].equals("public"))
+			{
+    			
+    			String fajlliPerEksportimPub = "C:/Users/Jetlira/Desktop/"+args[2]+".pub.xml";
+				File filePu = new File(fajlliPerEksportimPub);
+				boolean existsPu = filePu.exists();
+				
+				if(existsPu)
+				{
+					boolean pathValid = isPathValid(args[3]);
+					if(pathValid)
+					{
+						FileInputStream instream = null;
+		    			FileOutputStream outstream = null;
+		    		 
+		    		    	try{
+		    		    	    File infile =new File(fajlliPerEksportimPub);
+		    		    	    File outfile =new File(args[3]+".pub.xml");
+		    		 
+		    		    	    instream = new FileInputStream(infile);
+		    		    	    outstream = new FileOutputStream(outfile);
+		    		 
+		    		    	    byte[] buffer = new byte[1024];
+		    		 
+		    		    	    int length;
+		    		    	   
+		    		    	    while ((length = instream.read(buffer)) > 0){
+		    		    	    	outstream.write(buffer, 0, length);
+		    		    	    }
+
+		    		    	    instream.close();
+		    		    	    outstream.close();
+		    		    	    
+		    		    	    System.out.println("Celesi publik u ruajt ne fajllin '"+args[3]+".pub.xml'");
+		    		    	    
+		    		    	}catch(IOException ioe){
+		    		    		ioe.printStackTrace();
+		    		    	 }
+					}
+					else
+					{
+						System.out.println("Shtegu i dhënë është i gabuar!");
+					}
+				}
+				else
+				{
+					System.out.println("Celesi publik '"+args[2]+".pub.xml' nuk ekziston!");
+				}
+				
+			}
+    		else if(args[1].equals("private"))
+			{
+    			String fajlliPerEksportimPri = "C:/Users/Jetlira/Desktop/"+args[2]+".xml";
+				File filePu = new File(fajlliPerEksportimPri);
+				boolean existsPr = filePu.exists();
+				
+				if(existsPr)
+				{
+					boolean pathValid = isPathValid(args[3]);
+					if(pathValid)
+					{
+						FileInputStream instream = null;
+		    			FileOutputStream outstream = null;
+		    		 
+		    		    	try{
+		    		    	    File infile =new File(fajlliPerEksportimPri);
+		    		    	    File outfile =new File(args[3]+".xml");
+		    		 
+		    		    	    instream = new FileInputStream(infile);
+		    		    	    outstream = new FileOutputStream(outfile);
+		    		 
+		    		    	    byte[] buffer = new byte[1024];
+		    		 
+		    		    	    int length;
+		    		    	   
+		    		    	    while ((length = instream.read(buffer)) > 0){
+		    		    	    	outstream.write(buffer, 0, length);
+		    		    	    }
+
+		    		    	    instream.close();
+		    		    	    outstream.close();
+		    		    	    
+		    		    	    System.out.println("Celesi privat u ruajt ne fajllin '"+args[3]+".xml'");
+		    		    	    
+		    		    	    
+		    		    	}catch(IOException ioe){
+		    		    		ioe.printStackTrace();
+		    		    	 }
+					}
+					else
+					{
+						System.out.println("Shtegu i dhënë është i gabuar!");
+					}
+				}
+				else
+				{
+					System.out.println("Celesi privat '"+args[2]+".xml' nuk ekziston!");
+				}
+			}
+    		else
+    		{
+    			System.out.println("Argumenti i dytë eshte shkruajtur gabim, argumenti i dyte duhet te jete public ode private!");
+    		}
+    	}
+		else
+		{
+			
+			System.out.println("Numer jo i sakte i argumenteve!");
+			System.out.println("Komanda duhet te shkruhet kesisoj:  ds export-key <public|private> <name>");
+			System.out.println("ose");
+			System.out.println("Komanda duhet te shkruhet kesisoj:  ds export-key <public|private> <name> [file]");
+			
+			
+		}
+    	
+    }
+    
+    public static boolean isPathValid(String path) {
+
+        try {
+
+            Paths.get(path);
+
+        } catch (InvalidPathException ex) {
+            return false;
+        }
+
+        return true;
+    }
+	
