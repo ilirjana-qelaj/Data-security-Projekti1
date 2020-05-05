@@ -3,28 +3,120 @@ import java.util.List;
 
 
 
-public class ds {  
-    public static void main(String [] args)
-    {	
-    		while(!args[0].equals("four-square") && !args[0].equals("count") && !args[0].equals("rail-fence"))
-    		{
-    			System.out.println("-------------Error... Ju keni shtypur nje shkronje&numer tjeter.Provoni perseri-------------");
-    	     	break;
-    		} 
-     	
-    		if(args[0].equals("four-square"))
-    		{
-    		  	foursq(args);	
-    		}
-    		else if(args[0].equals("count"))
-    		{
-    		  	leximi(args);	
-    		}
-    		else if(args[0].equals("rail-fence"))
-    		{
-    			railFence(args);
-    		}
+public class ds {  public static void main(String [] args) throws IOException, InterruptedException
+    {	   		
+    		switch (args[0]) {
+    	      case "four-square":
+    	    	  foursq(args);
+    	        break;
+    	      case "count":
+    	    	  leximi(args);
+    	        break;
+    	      case "rail-fence":
+    	    	  railFence(args);
+    	        break;
+    	      case "create-user":
+    	        createUser(args);
+    	        break;
+    	      default:
+    	    	  System.out.println("Keni shkruajtur komande te gabuar!");
+      	     	
+    	    }
+   
     		    		
+    }
+		 //===================================================================================================
+    //Create User
+    //===================================================================================================
+    
+    
+    public static void createUser(String[] args)
+    {
+    	if(args.length != 2)
+		{
+			System.out.println("Numer jo i sakte i argumenteve!");
+			System.out.println("Komanda duhet te shkruhet kesisoj: ds create-user <name>");
+		}
+		else
+		{
+			try {
+				KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("RSA");
+				keyPairGenerator.initialize(512);
+				KeyPair keyPair = keyPairGenerator.generateKeyPair();
+				
+				keyPair.getPublic();
+				keyPair.getPrivate();
+				
+				
+				
+				KeyFactory kf = KeyFactory.getInstance("RSA");
+				RSAPrivateCrtKeySpec ks;
+
+				try {
+					ks = kf.getKeySpec(
+					    keyPair.getPrivate(), RSAPrivateCrtKeySpec.class);
+								
+					String cPrivat ="<RSAKeyValue> \n"
+						    + "<Modulus>" +  String.valueOf(ks.getModulus()) + "</Modulus>\n"
+						    + "<Exponent>" + String.valueOf( ks.getPublicExponent()) + "</Exponent>\n"
+						    + "<P>" + String.valueOf( ks.getPrimeP()) + "</P>\n"
+						    + "<Q>" + String.valueOf( ks.getPrimeQ()) + "</Q>\n"
+						    + "<DP>" + String.valueOf( ks.getPrimeExponentP()) + "</DP>\n"
+						    + "<DQ>" + String.valueOf( ks.getPrimeExponentQ()) + "</DQ>\n"
+						    + "<InverseQ>" + String.valueOf( ks.getCrtCoefficient()) + "</InverseQ>\n"
+						    + "<D>" + String.valueOf( ks.getPrivateExponent()) + "</D>\n"
+						    + "</RSAKeyValue>";
+							
+										
+						String cPublik = "<RSAKeyValue> \n"
+								+ "<Modulus>" + String.valueOf( ks.getModulus()) + "</Modulus>\n"
+										+ "<Exponent>" + String.valueOf( ks.getPublicExponent()) + "</Exponent>\n"
+												+ "</RSAKeyValue>";
+					
+					
+					String emri = args[1];
+					
+					String pathPri = "C:/Users/hp/OneDrive/Desktop/keypairs/"+emri+".xml";
+					String pathPub = "C:/Users/hp/OneDrive/Desktop/keypairs/"+emri+".pub.xml";
+					
+					File qelesiPerKrijimPub = new File(pathPub);
+					File qelesiPerKrijimPri = new File(pathPri);
+					boolean existsPu = qelesiPerKrijimPub.exists();
+					boolean existsPr = qelesiPerKrijimPri.exists();
+					
+					if(existsPu || existsPr)
+					{
+						System.out.println(" Gabim celesi '"+args[1]+"' ekziston paraprakisht!");
+					}
+					else {
+					try {
+						ruajXML(cPrivat, pathPri);
+						ruajXML(cPublik, pathPub);
+						System.out.println("Eshte krijuar celesi publik '"+emri+".pub.xml");
+						System.out.println("Eshte krijuar celesi privat '" +emri+".xml");
+					} catch (IOException e) {
+						
+						e.printStackTrace();
+					}
+					}
+
+					
+					
+					
+				} catch (InvalidKeySpecException e) {
+					
+					e.printStackTrace();
+				}
+				
+				
+				//System.out.println(publicKey);
+				//System.out.println(privateKey);
+				
+			} catch (NoSuchAlgorithmException e) {
+				
+				e.printStackTrace();
+			}
+		}
     }
     
     
