@@ -47,6 +47,9 @@ public static void main(String [] args) throws IOException, InterruptedException
     	      case "create-user":
     	        createUser(args);
     	        break;
+	      case "delete-user":
+    	        deleteUser(args);
+    	        break;
     	      default:
     	    	  System.out.println("Keni shkruajtur komande te gabuar!");
       	     	
@@ -147,6 +150,74 @@ public static void main(String [] args) throws IOException, InterruptedException
 			}
 		}
     }
+     
+     //===================================================================================================
+    //Delete User
+    //===================================================================================================
+    
+    
+    public static void deleteUser(String[] args)
+    {
+    	if(args.length != 2)
+		{
+			System.out.println("Numer jo i sakte i argumenteve!");
+			System.out.println("Komanda duhet te shkruhet kesisoj: ds delete-user <name>");
+		}
+		else
+		{
+			String fajlliPu = "C:/Users/hp/OneDrive/Desktop/keypairs/"+args[1]+".pub.xml";
+			String fajlliPr = "C:/Users/hp/OneDrive/Desktop/keypairs/"+args[1]+".xml";
+			File qelesiPerFshirjePu = new File(fajlliPu);
+			File qelesiPerFshirjePr = new File(fajlliPr);
+			
+			
+			boolean existsPu = qelesiPerFshirjePu.exists();
+			boolean existsPr = qelesiPerFshirjePr.exists();
+			
+			if(existsPu || existsPr)
+			{
+				if(existsPu)
+				{
+					if (qelesiPerFshirjePu.isFile())
+					{	
+					qelesiPerFshirjePu.delete();
+					System.out.println("Eshte larguar celesi publik '" +fajlliPu +"'");
+					}
+					else
+					{
+						System.out.println(" Useri '"+args[1]+"' nuk eshte fajll!");
+					}
+						
+				}
+				if(existsPr)
+				{
+					if (qelesiPerFshirjePr.isFile())
+					{	
+					qelesiPerFshirjePr.delete();
+					System.out.println("Eshte larguar celesi privat '" +fajlliPr +"'");
+				    }
+					else
+					{
+						System.out.println(" Useri '"+args[1]+"' nuk eshte fajll!");
+					}
+						
+				}
+			}
+			else
+			{
+				System.out.println(" Gabim celesi '"+args[1]+"' nuk ekziston!");
+			}
+			
+		}
+    }
+    
+	public static void ruajXML(String celesi, String path) throws IOException 
+	{
+	     
+	    FileWriter fileWriter = new FileWriter(path);
+	    fileWriter.write(celesi);
+	    fileWriter.close();
+	}
     
     
   //===================================================================================================
