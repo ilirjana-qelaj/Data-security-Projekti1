@@ -50,6 +50,12 @@ public static void main(String [] args) throws IOException, InterruptedException
 	      case "delete-user":
     	        deleteUser(args);
     	        break;
+	      case "export-key":
+    	        exportKey(args);
+    	        break;
+    	      case "import-key":
+      	        importKey(args);
+    	        break;		
     	      default:
     	    	  System.out.println("Keni shkruajtur komande te gabuar!");
       	     	
@@ -218,6 +224,434 @@ public static void main(String [] args) throws IOException, InterruptedException
 	    fileWriter.write(celesi);
 	    fileWriter.close();
 	}
+	//===================================================================================================
+    //Export Key
+    //===================================================================================================
+    public static void exportKey(String[] args)
+    {
+    	
+    	if(args.length == 3)
+		{
+    		Scanner sc;
+			if(args[1].equals("public"))
+			{
+				String fajlliPerEksportimPub = "C:\\Users\\SAMIRISOFT\\Desktop\\ds"+args[2]+".pub.xml";
+				File filePu = new File(fajlliPerEksportimPub);
+				boolean existsPu = filePu.exists();
+				if(existsPu)
+				{
+					try {
+						sc = new Scanner(filePu);
+						while (sc.hasNextLine()) 
+							System.out.println(sc.nextLine());
+					} catch (FileNotFoundException e) {
+						
+						e.printStackTrace();
+					}
+				}
+				else
+				{
+					System.out.println("Celesi publik '"+args[2]+".pub.xml' nuk ekziston!");
+				}
+			}
+			else if(args[1].equals("private"))
+			{
+				String fajlliPerEksportimPri = "C:\\Users\\SAMIRISOFT\\Desktop\\ds"+args[2]+".xml";
+		    	File filePri = new File(fajlliPerEksportimPri);
+				boolean existsPr = filePri.exists();
+				
+				if(existsPr)
+				{
+					try {
+						sc = new Scanner(filePri);
+						while (sc.hasNextLine()) 
+							System.out.println(sc.nextLine());
+					} catch (FileNotFoundException e) {
+						
+						e.printStackTrace();
+					}
+				}
+				else
+				{
+					System.out.println("Celesi privat '"+args[2]+".xml' nuk ekziston!");
+				}
+			}
+			else
+			{
+				System.out.println("Argumenti i dytë eshte shkruajtur gabim, argumenti i dyte duhet te jete public ode private!");
+			}
+		}
+    	else if(args.length == 4)
+    	{
+    		if(args[1].equals("public"))
+			{
+    			
+    			String fajlliPerEksportimPub = "C:\\Users\\SAMIRISOFT\\Desktop\\ds"+args[2]+".pub.xml";
+				File filePu = new File(fajlliPerEksportimPub);
+				boolean existsPu = filePu.exists();
+				
+				if(existsPu)
+				{
+					boolean pathValid = isPathValid(args[3]);
+					if(pathValid)
+					{
+						FileInputStream instream = null;
+		    			FileOutputStream outstream = null;
+		    		 
+		    		    	try{
+		    		    	    File infile =new File(fajlliPerEksportimPub);
+		    		    	    File outfile =new File(args[3]+".pub.xml");
+		    		 
+		    		    	    instream = new FileInputStream(infile);
+		    		    	    outstream = new FileOutputStream(outfile);
+		    		 
+		    		    	    byte[] buffer = new byte[1024];
+		    		 
+		    		    	    int length;
+		    		    	   
+		    		    	    while ((length = instream.read(buffer)) > 0){
+		    		    	    	outstream.write(buffer, 0, length);
+		    		    	    }
+
+		    		    	    instream.close();
+		    		    	    outstream.close();
+		    		    	    
+		    		    	    System.out.println("Celesi publik u ruajt ne fajllin '"+args[3]+".pub.xml'");
+		    		    	    
+		    		    	}catch(IOException ioe){
+		    		    		ioe.printStackTrace();
+		    		    	 }
+					}
+					else
+					{
+						System.out.println("Shtegu i dhënë është i gabuar!");
+					}
+				}
+				else
+				{
+					System.out.println("Celesi publik '"+args[2]+".pub.xml' nuk ekziston!");
+				}
+				
+			}
+    		else if(args[1].equals("private"))
+			{
+    			String fajlliPerEksportimPri = "C:\\Users\\SAMIRISOFT\\Desktop\\ds"+args[2]+".xml";
+				File filePu = new File(fajlliPerEksportimPri);
+				boolean existsPr = filePu.exists();
+				
+				if(existsPr)
+				{
+					boolean pathValid = isPathValid(args[3]);
+					if(pathValid)
+					{
+						FileInputStream instream = null;
+		    			FileOutputStream outstream = null;
+		    		 
+		    		    	try{
+		    		    	    File infile =new File(fajlliPerEksportimPri);
+		    		    	    File outfile =new File(args[3]+".xml");
+		    		 
+		    		    	    instream = new FileInputStream(infile);
+		    		    	    outstream = new FileOutputStream(outfile);
+		    		 
+		    		    	    byte[] buffer = new byte[1024];
+		    		 
+		    		    	    int length;
+		    		    	   
+		    		    	    while ((length = instream.read(buffer)) > 0){
+		    		    	    	outstream.write(buffer, 0, length);
+		    		    	    }
+
+		    		    	    instream.close();
+		    		    	    outstream.close();
+		    		    	    
+		    		    	    System.out.println("Celesi privat u ruajt ne fajllin '"+args[3]+".xml'");
+		    		    	    
+		    		    	    
+		    		    	}catch(IOException ioe){
+		    		    		ioe.printStackTrace();
+		    		    	 }
+					}
+					else
+					{
+						System.out.println("Shtegu i dhënë është i gabuar!");
+					}
+				}
+				else
+				{
+					System.out.println("Celesi privat '"+args[2]+".xml' nuk ekziston!");
+				}
+			}
+    		else
+    		{
+    			System.out.println("Argumenti i dytë eshte shkruajtur gabim, argumenti i dyte duhet te jete public ode private!");
+    		}
+    	}
+		else
+		{
+			
+			System.out.println("Numer jo i sakte i argumenteve!");
+			System.out.println("Komanda duhet te shkruhet kesisoj:  ds export-key <public|private> <name>");
+			System.out.println("ose");
+			System.out.println("Komanda duhet te shkruhet kesisoj:  ds export-key <public|private> <name> [file]");
+			
+			
+		}
+    	
+    }
+    
+    public static boolean isPathValid(String path) {
+
+        try {
+
+            Paths.get(path);
+
+        } catch (InvalidPathException ex) {
+            return false;
+        }
+
+        return true;
+    }
+	
+	
+    //===================================================================================================
+    //Import Key
+    //===================================================================================================
+    
+    public static void importKey(String[] args) throws IOException, InterruptedException
+    {
+    	if(args.length==3)
+    	{
+    		
+    		String fajlliPerRuajtje = args[1];
+			File fileRu = new File(fajlliPerRuajtje);
+			boolean exists = fileRu.exists();
+			
+			if(!exists)
+			{
+				if(args[2].startsWith("http:") || args[2].startsWith("https:"))
+				{
+					if(existsUrl(args[2]))
+					{						
+						HttpClient client = HttpClient.newHttpClient();
+				        HttpRequest request = HttpRequest.newBuilder()
+				                .uri(URI.create(args[2]))
+				                .build();
+
+				        HttpResponse<String> response = client.send(request,
+				                HttpResponse.BodyHandlers.ofString());
+				        
+				        String[] lines = response.body().split("\r\n|\r|\n");
+				        
+				        //System.out.println(lines.length);
+				        if(lines.length==4)
+				        {
+				        FileWriter myWriter = new FileWriter(args[1]+".pub.xml");
+				        myWriter.write(response.body());
+				        myWriter.close();
+				        }
+				        else if(lines.length==10)
+				        {
+				        FileWriter myWriter = new FileWriter(args[1]+".xml");
+				        myWriter.write(response.body());
+				        myWriter.close();
+				        
+				        FileWriter myWriter2 = new FileWriter(args[1]+".pub.xml");
+				        for(int i=0;i<3;i++)
+				        {	
+				        myWriter2.append(lines[i]+"\n");
+				        }
+				        myWriter2.append("</RSAKeyValue>");
+				        myWriter2.close();
+				        }
+				        else
+				        {
+				        	System.out.println("Fajlli i specifikuar per importim nuk permban te dhenat ne teresi!");
+				        }
+					}
+					else
+					{
+						System.out.println("Url e dhene nuk ekziston!");
+					}
+				}
+				else
+				{
+					boolean pathValid = isPathValid(args[2]);
+					if(pathValid)
+					{
+						if(args[2].endsWith(".xml"))
+						{	
+		    		    	try{
+		    		    		String fajlliPerImportim = args[2];
+		    		    	    File infile =new File(fajlliPerImportim);
+		    		    	    File outfile = null;
+		    		    	    
+		    		    	    FileInputStream instream = new FileInputStream(infile);
+    		    	    		
+		    		 
+		    		    	    byte[] buffer = new byte[1024];
+		    		 
+		    		    	    int length;
+		    		    	    
+		    		    	    if(infile.exists())
+		    		    	    {
+		    		    	    	if(numeroRreshtat(fajlliPerImportim)==4)
+			    		    	    {
+		    		    	    		outfile =new File(args[1]+".pub.xml");
+		    		    	    		FileOutputStream outstream = new FileOutputStream(outfile);
+		    		    	    						    		    	   
+				    		    	    while ((length = instream.read(buffer)) > 0){
+				    		    	    	outstream.write(buffer, 0, length);
+				    		    	    }
+
+				    		    	    instream.close();
+				    		    	    outstream.close();
+				    		    	    
+				    		    	    System.out.println("Celesi publik u ruajt ne fajllin '"+args[1]+".pub.xml'");
+			    		    	    }
+		    		    	    	else if(numeroRreshtat(fajlliPerImportim)==10)
+		    		    	    	{
+		    		    	    		outfile =new File(args[1]+".xml");
+		    		    	    		FileOutputStream outstream = new FileOutputStream(outfile);
+		    		    	    		
+				    		    	   
+				    		    	    while ((length = instream.read(buffer)) > 0){
+				    		    	    	outstream.write(buffer, 0, length);
+				    		    	    }
+
+				    		    	    instream.close();
+				    		    	    outstream.close();
+				    		    	    
+				    		    	    System.out.println("Celesi privat u ruajt ne fajllin '"+args[1]+".xml'");
+				    		    	    
+				    		    	    String[] celesiKomplet = readLineByLineJava(args[2]).split("\r\n|\r|\n");
+		    		    	  
+				    		    	    FileWriter myWriter2 = new FileWriter(args[1]+".pub.xml");
+								        for(int i=0;i<3;i++)
+								        {	
+								        myWriter2.append(celesiKomplet[i]+"\n");
+								        }
+								        myWriter2.append("</RSAKeyValue>");
+								        myWriter2.close();
+				    		    	    
+
+				    		    	    
+				    		    	    System.out.println("Celesi publik u ruajt ne fajllin '"+args[1]+".pub.xml'");
+				    		    	    
+				    		    	    
+				    		    	    
+				    		           
+		    		    	    		
+		    		    	    	}
+		    		    	    	else
+		    		    	    	{
+		    		    	    		System.out.println("Fajlli i specifikuar per importim nuk permban te dhenat ne teresi!");
+		    		    	    	}
+		    		    	    }
+		    		 
+		    		    	}
+		    		    	    
+		    		    	    
+		    		    	catch(IOException ioe){
+		    		    		ioe.printStackTrace();
+		    		    	 }
+						}
+						else
+						{
+							System.out.println("Gabim: Fajlli i dhene nuk eshte celes valid!");
+						}
+					}
+					else
+					{
+						System.out.println("Shtegu i dhënë është i gabuar!");
+					}
+				}
+				
+			}
+			else
+			{
+				System.out.println("Celesi '"+args[1]+"' ekziston paraprakisht!");
+			}
+    	}
+		else
+		{
+			
+			System.out.println("Numer jo i sakte i argumenteve!");
+			System.out.println("Komanda duhet te shkruhet kesisoj:  ds import-key <name> <path>");
+			
+		}
+    	
+    }
+    
+    private static String readLineByLineJava(String filePath) 
+    {
+        StringBuilder contentBuilder = new StringBuilder();
+        try (Stream<String> stream = Files.lines( Paths.get(filePath), StandardCharsets.UTF_8)) 
+        {
+            stream.forEach(s -> contentBuilder.append(s).append("\n"));
+        }
+        catch (IOException e) 
+        {
+            e.printStackTrace();
+        }
+        return contentBuilder.toString();
+    }
+ 
+    public static int numeroRreshtat(String fajlli)
+    {
+    	int linenumber = 0;
+    	try{
+
+    		File file =new File(fajlli);
+
+
+    		    FileReader fr = new FileReader(file);
+    		    LineNumberReader lnr = new LineNumberReader(fr);
+
+    		    
+
+    	            while (lnr.readLine() != null){
+    	        	linenumber++;
+    	            }
+
+
+    	            lnr.close();    		
+
+    	}catch(IOException e){
+    		e.printStackTrace();
+    	}
+		return linenumber;
+    }
+    
+    public static boolean existsUrl(String url1)
+    {
+    	URL url;
+    	HttpURLConnection huc;
+    	int responseCode;
+    	boolean ekziston=true;
+		try {
+			url = new URL(url1);
+			huc = (HttpURLConnection) url.openConnection();
+	    	responseCode = huc.getResponseCode();
+	    	
+	    	if (responseCode != 404) {
+	        	ekziston=true;
+	        	} else {
+	        	ekziston=false;
+	        	}
+	    	
+		} catch (MalformedURLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+    	
+    	
+    	
+    	return ekziston;
+    }
     
     
   //===================================================================================================
