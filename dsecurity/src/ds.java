@@ -1,6 +1,9 @@
-package ds;
+package projekti;
+
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
+import java.util.Random;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -9,8 +12,28 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.util.Scanner;
 import java.util.stream.Stream;
+
+import javax.crypto.BadPaddingException;
+import javax.crypto.Cipher;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
+import javax.crypto.SecretKey;
+import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.SecretKeySpec;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
+
 import java.io.IOException;
 import java.io.LineNumberReader;
+import java.io.UnsupportedEncodingException;
+import java.math.BigInteger;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URI;
@@ -21,18 +44,27 @@ import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
+import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.security.InvalidKeyException;
 import java.security.KeyFactory;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
+import java.security.PrivateKey;
+import java.security.PublicKey;
+import java.security.SecureRandom;
 import java.security.spec.InvalidKeySpecException;
+import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.RSAPrivateCrtKeySpec;
+import java.security.spec.RSAPrivateKeySpec;
+import java.security.spec.RSAPublicKeySpec;
+import java.security.spec.X509EncodedKeySpec;
 
 
 
-public class ds { 
-public static void main(String [] args) throws IOException, InterruptedException
+public class ds {  
+    public static void main(String [] args) throws Exception
     {	   		
     		switch (args[0]) {
     	      case "four-square":
@@ -47,23 +79,28 @@ public static void main(String [] args) throws IOException, InterruptedException
     	      case "create-user":
     	        createUser(args);
     	        break;
-	      case "delete-user":
+    	      case "delete-user":
     	        deleteUser(args);
     	        break;
-	      case "export-key":
+    	      case "export-key":
     	        exportKey(args);
     	        break;
     	      case "import-key":
       	        importKey(args);
-    	        break;		
+    	        break;
+    	      case "write-message":
+        	        writeMessage(args);
+      	        break;
+    	      case "read-message":
+        	        readMessage(args);
+      	        break;
     	      default:
     	    	  System.out.println("Keni shkruajtur komande te gabuar!");
       	     	
     	    }
-   
-    		    		
     }
-		 //===================================================================================================
+
+    //===================================================================================================
     //Create User
     //===================================================================================================
     
@@ -114,8 +151,8 @@ public static void main(String [] args) throws IOException, InterruptedException
 					
 					String emri = args[1];
 					
-					String pathPri = "C:/Users/hp/OneDrive/Desktop/keypairs/"+emri+".xml";
-					String pathPub = "C:/Users/hp/OneDrive/Desktop/keypairs/"+emri+".pub.xml";
+					String pathPri = "keys/"+emri+".xml";
+					String pathPub = "keys/"+emri+".pub.xml";
 					
 					File qelesiPerKrijimPub = new File(pathPub);
 					File qelesiPerKrijimPri = new File(pathPri);
@@ -156,8 +193,8 @@ public static void main(String [] args) throws IOException, InterruptedException
 			}
 		}
     }
-     
-     //===================================================================================================
+    
+    //===================================================================================================
     //Delete User
     //===================================================================================================
     
@@ -171,8 +208,8 @@ public static void main(String [] args) throws IOException, InterruptedException
 		}
 		else
 		{
-			String fajlliPu = "C:/Users/hp/OneDrive/Desktop/keypairs/"+args[1]+".pub.xml";
-			String fajlliPr = "C:/Users/hp/OneDrive/Desktop/keypairs/"+args[1]+".xml";
+			String fajlliPu = "keys/"+args[1]+".pub.xml";
+			String fajlliPr = "keys/"+args[1]+".xml";
 			File qelesiPerFshirjePu = new File(fajlliPu);
 			File qelesiPerFshirjePr = new File(fajlliPr);
 			
@@ -224,7 +261,8 @@ public static void main(String [] args) throws IOException, InterruptedException
 	    fileWriter.write(celesi);
 	    fileWriter.close();
 	}
-	//===================================================================================================
+	
+    //===================================================================================================
     //Export Key
     //===================================================================================================
     public static void exportKey(String[] args)
@@ -235,7 +273,7 @@ public static void main(String [] args) throws IOException, InterruptedException
     		Scanner sc;
 			if(args[1].equals("public"))
 			{
-				String fajlliPerEksportimPub = "C:\\Users\\SAMIRISOFT\\Desktop\\ds"+args[2]+".pub.xml";
+				String fajlliPerEksportimPub = "keys/"+args[2]+".pub.xml";
 				File filePu = new File(fajlliPerEksportimPub);
 				boolean existsPu = filePu.exists();
 				if(existsPu)
@@ -256,7 +294,7 @@ public static void main(String [] args) throws IOException, InterruptedException
 			}
 			else if(args[1].equals("private"))
 			{
-				String fajlliPerEksportimPri = "C:\\Users\\SAMIRISOFT\\Desktop\\ds"+args[2]+".xml";
+				String fajlliPerEksportimPri = "keys/"+args[2]+".xml";
 		    	File filePri = new File(fajlliPerEksportimPri);
 				boolean existsPr = filePri.exists();
 				
@@ -286,7 +324,7 @@ public static void main(String [] args) throws IOException, InterruptedException
     		if(args[1].equals("public"))
 			{
     			
-    			String fajlliPerEksportimPub = "C:\\Users\\SAMIRISOFT\\Desktop\\ds"+args[2]+".pub.xml";
+    			String fajlliPerEksportimPub = "keys/"+args[2]+".pub.xml";
 				File filePu = new File(fajlliPerEksportimPub);
 				boolean existsPu = filePu.exists();
 				
@@ -335,7 +373,7 @@ public static void main(String [] args) throws IOException, InterruptedException
 			}
     		else if(args[1].equals("private"))
 			{
-    			String fajlliPerEksportimPri = "C:\\Users\\SAMIRISOFT\\Desktop\\ds"+args[2]+".xml";
+    			String fajlliPerEksportimPri = "keys/"+args[2]+".xml";
 				File filePu = new File(fajlliPerEksportimPri);
 				boolean existsPr = filePu.exists();
 				
@@ -652,7 +690,190 @@ public static void main(String [] args) throws IOException, InterruptedException
     	
     	return ekziston;
     }
+  //===================================================================================================
+  //Write Message
+  //===================================================================================================
     
+    public static void writeMessage(String[] args) throws Exception
+    {
+    	//ds write-message <name>-celesi publik <message> [file]-fajlli ku ruhet mesazhi opcional
+
+    	//String ciphertext = base64(utf8(args[1])).base64(iv).base64(key).base64(des(args[2]));
+    	
+    	String fajlliMeCeles = args[1]+".xml";
+	    File cFile =new File(fajlliMeCeles);
+	    
+	    if(cFile.exists())
+	    {
+	    	
+	    	SecureRandom sr = new SecureRandom();
+			long iv = sr.nextLong();
+			long key = sr.nextLong();
+	        
+	    	
+	    	byte[] utf8Bytes;
+	    	String encodedName;
+	    	String encodedIv;
+	    	String encodedKey;
+	    	
+	    	
+	    	try {
+				utf8Bytes = args[1].getBytes("UTF8");
+				encodedName = Base64.getEncoder().encodeToString(utf8Bytes);
+				encodedIv = Base64.getEncoder().encodeToString(String.valueOf(iv).getBytes());
+				
+				File file = new File(args[1]+".xml");
+				
+				DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();  
+				DocumentBuilder db = dbf.newDocumentBuilder();  
+				Document doc = db.parse(file);  
+				doc.getDocumentElement().normalize(); 
+				NodeList nodeList = doc.getElementsByTagName("RSAKeyValue");  
+				
+
+				Node node = nodeList.item(0);  
+				 
+				
+				Element eElement = (Element) node;  
+				System.out.println("Modulus: "+ eElement.getElementsByTagName("Modulus").item(0).getTextContent());  
+				System.out.println("Exponent: "+ eElement.getElementsByTagName("Exponent").item(0).getTextContent());  
+				//System.out.println("D: "+ eElement.getElementsByTagName("D").item(0).getTextContent());  
+
+				String modulusElement = eElement.getElementsByTagName("Modulus").item(0).getTextContent();
+				String exponentElement = eElement.getElementsByTagName("Exponent").item(0).getTextContent();
+				//String dElement = eElement.getElementsByTagName("D").item(0).getTextContent();
+				
+				
+				
+				BigInteger modulus = new BigInteger(modulusElement, 16);
+				//BigInteger exponent = new BigInteger(dElement, 16);
+				BigInteger pubExponent = new BigInteger(exponentElement);
+						
+				
+				//RSAPrivateKeySpec privateSpec = new RSAPrivateKeySpec(modulus, exponent);
+				RSAPublicKeySpec publicSpec = new RSAPublicKeySpec(modulus, pubExponent);
+						
+			
+				KeyFactory factory = KeyFactory.getInstance("RSA");
+						
+				
+				//PrivateKey priv = factory.generatePrivate(privateSpec);
+				PublicKey pub = factory.generatePublic(publicSpec);
+				
+			
+		        
+
+		        String plainText = args[2];
+		        
+		        String encryptedKeyRSA = encryptKeyWRSA(plainText, pub);
+		        
+		        encodedKey = Base64.getEncoder().encodeToString(encryptedKeyRSA.getBytes());
+		        
+		        
+				String mesazhi = args[2]; 
+
+			    String tekstiEnkriptuar = encryptDes(mesazhi, String.valueOf(iv), String.valueOf(key));
+				
+			    String cipherText = encodedName+"."+encodedIv+"."+encodedKey+"."+tekstiEnkriptuar;
+			    
+			    if(args.length==3)
+			    {
+			    	System.out.println(cipherText);
+			    }
+			    else if(args.length==4)
+			    {
+			    	FileWriter fileEncText = new FileWriter(args[3]+".txt");
+			    	fileEncText.append(cipherText);
+			    	fileEncText.close();
+			    	System.out.println("Mesazhi i enkriptuar u ruajt ne fajllin '"+args[3]+".txt'.");
+			    }
+			    else
+			    {
+			    	System.out.println("Komanda eshte shkruajtur gabim, komanda duhet te jete kesisoj:");
+			    	System.out.println("ds write-message <name> <message>");
+			    	System.out.println("ose");
+			    	System.out.println("ds write-message <name> <message> [file]");
+			    }
+			    
+			   
+
+				
+			} catch (UnsupportedEncodingException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+	    }
+	    else
+	    {
+	    	System.out.println("Gabim: Celesi publik '"+args[1]+"' nuk ekziston.");
+	    }
+    	
+    	
+    }
+    
+    private static String encryptKeyWRSA(String plainText, PublicKey publicKey) throws Exception {
+        Cipher cipher = Cipher.getInstance("RSA");
+        cipher.init(Cipher.ENCRYPT_MODE, publicKey);
+        return Base64.getEncoder().encodeToString(cipher.doFinal(plainText.getBytes()));
+    }
+    
+    
+    //============enkriptimi des
+    
+    public static String encryptDes(String value, String initVector, String celesi) {
+    	try {
+    		IvParameterSpec iv = new IvParameterSpec(initVector.getBytes("UTF-8"));
+    		SecretKeySpec skeySpec = new SecretKeySpec(celesi.getBytes("UTF-8"), "AES");
+
+    		Cipher cipher = Cipher.getInstance("DES/CBC/PKCS5PADDING");
+    		cipher.init(Cipher.ENCRYPT_MODE, skeySpec, iv);
+
+    		byte[] encrypted = cipher.doFinal(value.getBytes());
+    		//return Base64.encodeBase64String(encrypted);
+    		return Base64.getEncoder().encodeToString(cipher.doFinal(value.getBytes("UTF-8")));
+    	} catch (Exception ex) {
+    		ex.printStackTrace();
+    	}
+    	return null;
+    }
+    
+    public static String decryptDes(String encrypted, String initVector, String celesi) {
+    	try {
+    		IvParameterSpec iv = new IvParameterSpec(initVector.getBytes("UTF-8"));
+    		SecretKeySpec skeySpec = new SecretKeySpec(celesi.getBytes("UTF-8"), "AES");
+
+    		Cipher cipher = Cipher.getInstance("DES/CBC/PKCS5PADDING");
+    		cipher.init(Cipher.DECRYPT_MODE, skeySpec, iv);
+    		byte[] original = cipher.doFinal(Base64.getDecoder().decode(encrypted));
+    		
+    		//String bytesEncoded = Base64.getEncoder().withoutPadding().encodeToString(tekstiEnkriptuar.getBytes());
+
+    		return new String(original);
+    	} catch (Exception ex) {
+    		ex.printStackTrace();
+    	}
+
+    	return null;
+    }
+    
+    
+    
+    
+    //===================================================================================================
+    //Read Message
+    //===================================================================================================
+	
+    public static void readMessage(String[] args)
+    {
+    	
+    }
+    
+    
+    
+    
+    //===================================================================================================
+    //Projekti I Pare
+    //===================================================================================================
     
   //===================================================================================================
   //Rail
