@@ -1,4 +1,8 @@
- public static void exportKey(String[] args)
+ 
+    //===================================================================================================
+    //Export Key
+    //===================================================================================================
+    public static void exportKey(String[] args)
     {
     	
     	if(args.length == 3)
@@ -6,7 +10,7 @@
     		Scanner sc;
 			if(args[1].equals("public"))
 			{
-				String fajlliPerEksportimPub = "C:/Users/Jetlira/Desktop/"+args[2]+".pub.xml";
+				String fajlliPerEksportimPub = "C:\\Users\\SAMIRISOFT\\Desktop\\ds"+args[2]+".pub.xml";
 				File filePu = new File(fajlliPerEksportimPub);
 				boolean existsPu = filePu.exists();
 				if(existsPu)
@@ -27,7 +31,7 @@
 			}
 			else if(args[1].equals("private"))
 			{
-				String fajlliPerEksportimPri = "C:/Users/Jetlira/Desktop/"+args[2]+".xml";
+				String fajlliPerEksportimPri = "C:\\Users\\SAMIRISOFT\\Desktop\\ds"+args[2]+".xml";
 		    	File filePri = new File(fajlliPerEksportimPri);
 				boolean existsPr = filePri.exists();
 				
@@ -49,7 +53,7 @@
 			}
 			else
 			{
-				System.out.println("Argumenti i dytë eshte shkruajtur gabim, argumenti i dyte duhet te jete public ode private!");
+				System.out.println("Argumenti i dytÃ« eshte shkruajtur gabim, argumenti i dyte duhet te jete public ode private!");
 			}
 		}
     	else if(args.length == 4)
@@ -57,7 +61,7 @@
     		if(args[1].equals("public"))
 			{
     			
-    			String fajlliPerEksportimPub = "C:/Users/Jetlira/Desktop/"+args[2]+".pub.xml";
+    			String fajlliPerEksportimPub = "C:\\Users\\SAMIRISOFT\\Desktop\\ds"+args[2]+".pub.xml";
 				File filePu = new File(fajlliPerEksportimPub);
 				boolean existsPu = filePu.exists();
 				
@@ -95,7 +99,7 @@
 					}
 					else
 					{
-						System.out.println("Shtegu i dhënë është i gabuar!");
+						System.out.println("Shtegu i dhÃ«nÃ« Ã«shtÃ« i gabuar!");
 					}
 				}
 				else
@@ -106,7 +110,7 @@
 			}
     		else if(args[1].equals("private"))
 			{
-    			String fajlliPerEksportimPri = "C:/Users/Jetlira/Desktop/"+args[2]+".xml";
+    			String fajlliPerEksportimPri = "C:\\Users\\SAMIRISOFT\\Desktop\\ds"+args[2]+".xml";
 				File filePu = new File(fajlliPerEksportimPri);
 				boolean existsPr = filePu.exists();
 				
@@ -145,7 +149,7 @@
 					}
 					else
 					{
-						System.out.println("Shtegu i dhënë është i gabuar!");
+						System.out.println("Shtegu i dhÃ«nÃ« Ã«shtÃ« i gabuar!");
 					}
 				}
 				else
@@ -155,7 +159,7 @@
 			}
     		else
     		{
-    			System.out.println("Argumenti i dytë eshte shkruajtur gabim, argumenti i dyte duhet te jete public ode private!");
+    			System.out.println("Argumenti i dytÃ« eshte shkruajtur gabim, argumenti i dyte duhet te jete public ode private!");
     		}
     	}
 		else
