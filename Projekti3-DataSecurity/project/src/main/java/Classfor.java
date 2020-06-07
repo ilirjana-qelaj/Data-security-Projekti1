@@ -1,0 +1,1755 @@
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.LineNumberReader;
+import java.io.UnsupportedEncodingException;
+import java.math.BigInteger;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URL;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.InvalidPathException;
+import java.nio.file.Paths;
+import java.security.Key;
+import java.security.KeyFactory;
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
+import java.security.PublicKey;
+import java.security.SecureRandom;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.RSAPrivateCrtKeySpec;
+import java.security.spec.RSAPublicKeySpec;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+import java.util.Base64;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
+import java.util.Scanner;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Stream;
+
+import javax.crypto.Cipher;
+import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.SecretKeySpec;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+
+import com.mysql.jdbc.Connection;
+import com.mysql.jdbc.Statement;
+
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Header;
+import io.jsonwebtoken.Jws;
+import io.jsonwebtoken.Jwt;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.security.Keys;
+
+
+
+
+
+
+
+
+public class Classfor {
+
+
+	private static final String USERNAME="root";
+	private static final String PASSWORD="";
+	private static final String CONNECTDB="jdbc:mysql://localhost/java";
+	
+	
+	public static void main(String[] args) throws Exception  
+	{
+		switch (args[0]) {
+	      case "create-user":
+	    	  createUser(args);
+	        break;
+	      case "delete-user":
+	    	  deleteUser(args);
+	        break;
+	      case "login":
+	    	  LoginForm(args);
+	    	  break;
+	      case "status":
+	    	  StatusForm(args);
+	    	  break;
+	      default:
+	    	  System.out.println("Keni shkruajtur komande te gabuar!");
+			}
+	}
+	
+	
+	//
+	////////////////////////////KONEKTIMI ME DB//////////////////////////
+	//
+	private static Connection getConn() throws SQLException {
+		
+		Connection connection;
+		connection=(Connection) DriverManager.getConnection(CONNECTDB,USERNAME,PASSWORD);
+		
+		
+		return connection;
+		
+	}
+	
+	//
+	////////////////////////////CREATEUSER ME DB//////////////////////////
+	//
+	
+	private static void createUser(String[] args) throws NoSuchAlgorithmException, NoSuchProviderException, SQLException{
+		Scanner in=new Scanner(System.in);
+		java.sql.Connection connection=null;
+		Statement stmt=null;
+		Statement exists=null;
+		connection=getConn();
+		java.sql.Statement st = connection.createStatement();
+		String emri=args[1];
+		//System.out.println("U konektuam");
+		if(args.length != 2)
+		{
+			System.out.println("Numer jo i sakte i argumenteve!");
+			System.out.println("Komanda duhet te shkruhet kesisoj: ds create-user <name>");
+		}
+		else {
+			String queryexsists = ("select * from shfrytezuesit where emri='"+emri+"'");
+			ResultSet existsresult = st.executeQuery(queryexsists);
+			if(existsresult.next())
+				{
+					System.out.println(emri+" ekziston paraprakisht");
+				}
+			else {
+				System.out.println("Jepni fjalekalimin:");
+				String pw=in.nextLine();
+				System.out.println("Perseritni fjalekalimin:");
+				String pw1=in.nextLine();
+					if(checkifPassword(pw,pw1)) {
+						String passwordToHash = pw;
+						  
+						String securePassword = hashFjalkalimin(passwordToHash);
+						String query = "insert into shfrytezuesit (emri, password) values ('"+emri+"', '"+securePassword+"')";
+						int rs = st.executeUpdate(query);
+						System.out.println("Eshte krijuar shfrytezuesi '"+emri+"'");
+						createUser1(args);
+		    
+					}	
+				}
+			}
+		}
+	//
+	////////////////////////////DELETE USER//////////////////////////
+	//
+	
+	private static void deleteUser(String[] args) throws NoSuchAlgorithmException, NoSuchProviderException, SQLException
+	{
+	
+		java.sql.Connection connection=null;
+		Statement stmt=null;
+		connection=getConn();
+		java.sql.Statement st = connection.createStatement();
+		String emri=args[1];
+		if(args.length!=2) {
+			System.out.println("Numer jo i sakte i argumenteve!");
+			System.out.println("Komanda duhet te shkruhet kesisoj: ds delete-user <name>");
+		}
+		else {
+			String queryexsists = ("select * from shfrytezuesit where emri='"+emri+"'");
+			ResultSet existsresult = st.executeQuery(queryexsists);
+		
+			if(existsresult.next())
+				{
+				String query="DELETE FROM shfrytezuesit WHERE emri='"+emri+"'";
+				int rs = st.executeUpdate(query);
+				System.out.println(emri+"Eshte larguar nga shfrytezuesit");
+				deleteUser1(args);
+				}
+			else {
+				System.out.println(emri+" Nuk ekziston");
+				}
+			}
+		
+		}
+	
+	//
+	////////////////////////////LOGINFORM//////////////////////////
+	//
+	public static void LoginForm(String[] args) throws SQLException, NoSuchAlgorithmException, NoSuchProviderException {
+
+		Scanner in=new Scanner(System.in);
+		java.sql.Connection connection=null;
+		Statement stmt=null;
+		Statement exists=null;
+		connection=getConn();
+		String jwt="";
+		java.sql.Statement st = connection.createStatement();
+		String emri=args[1];
+		System.out.println("Jepni fjalekalimin:");
+		String pw=in.nextLine();
+		String passwordToHash=hashFjalkalimin(pw);
+		String queryexsists = ("select * from shfrytezuesit where emri='"+emri+"' and password='"+passwordToHash+"'");
+		ResultSet existsresult = st.executeQuery(queryexsists);
+		if(existsresult.next())
+			{
+			String originalInput=OpenFilePrivate(args[1]);
+		    System.out.println("Token:"+GjeneroTokenin(args[1]));
+			}
+
+		else {
+			System.out.println( "Gabim:Njera nga User apo Password eshte gabim!");
+		}
+		
+			
+		
+}
+	//
+	////////////////////////////HASH+SALT//////////////////////////
+	//
+	public static String hashFjalkalimin(String plaintext) {
+		try {
+		    
+		    MessageDigest m = MessageDigest.getInstance("MD5");
+		    m.reset();
+		    m.update(plaintext.getBytes());
+		    byte[] digest = m.digest();
+		    BigInteger bigInt = new BigInteger(1,digest);
+		    String hashtext = bigInt.toString(16);
+		    while(hashtext.length() < 32 ){
+			hashtext = "0"+hashtext;
+		    }
+		    return hashtext;
+		} catch (Exception e) {
+		    return "Gabim!";
+		}
+	    }
+	//
+	////////////////////////////GJenero Tokenin//////////////////////////
+	//
+	private static String GjeneroTokenin(String emri) {
+		String originalInput=OpenFilePrivate(emri);
+	    String encodedString = Base64.getEncoder().encodeToString(originalInput.getBytes()); 
+	    byte[] apiKeySecretBytes =Base64.getDecoder().decode(encodedString);
+		Instant nowInstant = Instant.now();
+		return Jwts.builder()
+				.setHeaderParam("typ","JWT")
+				.setSubject(emri)
+				.setIssuedAt(Date.from(nowInstant))
+				.setExpiration(Date.from(nowInstant.plus(20,ChronoUnit.MINUTES)))
+				.signWith(Keys.hmacShaKeyFor(apiKeySecretBytes))
+				.compact();
+		
+	}
+	//
+	////////////////////////////Fshij Tokenin//////////////////////////
+	//
+	private static void fshijTokenin(String jws) throws ParseException {
+		int i = jws.lastIndexOf('.');
+		String untrustedJwtString = jws.substring(0, i+1);
+		Jwt<Header,Claims> untrusted = Jwts.parser().parseClaimsJwt(untrustedJwtString);	
+		Date d1=untrusted.getBody().getExpiration();
+		String dateInString = d1.toString();
+		//Date date = sdf.parse(dateInString);
+		Instant instant=untrusted.getBody().getExpiration().toInstant();
+		String emString=untrusted.getBody().getSubject();
+		Instant instant1=Instant.now();
+		try {
+		if(instant1.isBefore(instant))
+		{
+			System.out.println("User:"+emString);
+			System.out.println("Valid:PO");
+			System.out.println("Skadimi:"+dateInString);
+		}
+		else if (instant1.isAfter(instant))
+		{
+			System.out.println("User:"+emString);
+			System.out.println("Valid:JO");
+			System.out.println("Skadimi:"+dateInString);
+		}
+		} catch (Exception e) {
+			System.out.println("User:"+emString);
+			System.out.println("Valid:JO");
+			System.out.println("Skadimi:"+dateInString);
+		}
+		
+	}
+	//
+	////////////////////////////Status Tokenin//////////////////////////
+	//
+	public static void StatusForm(String[] args) throws ParseException, SQLException {
+		if (args.length!=2)
+		{
+			System.out.println("Argumentet jan te dhenura gabim");
+		}
+		else {
+			try {
+				 fshijTokenin(args[1]);
+			} catch (Exception e) {
+				System.out.println("Ka Skaduar Tokeni");
+			}
+		
+	   
+		}
+	}
+	
+	
+	
+	
+	//
+	////////////////////////////KONTROLLO PASSWORD//////////////////////////
+	//
+	
+	private static boolean checkifPassword(String pw,String pw1)
+	{
+		boolean numer = false;
+		boolean simbol = false;
+		char c;
+		if(!(pw.equals(pw1)))
+		{
+			System.out.println("Gabim: Fjalekalimet nuk perputhen.");
+			return false;
+		}
+		else if(pw.equals(pw1) && pw.length()<6)
+		{
+			System.out.println("Gabim: Fjalekali duhet te jete me i gjate se 6 karaktere.");
+			return false;
+		}
+		for(int i=0;i<pw.length();i++)
+		{
+			c=pw.charAt(i);
+		if(Character.isDigit(c))
+			{
+			numer = true;
+			}
+		
+		else if(!Character.isLetter(c) && !Character.isDigit(c) && c!=' ')
+			{
+			simbol = true;
+			}
+		if(pw.equals(pw1) && (numer || simbol))
+			{
+			return true;	
+			}
+		}
+	System.out.println("Fjalekalimi duhet te permbaje se paku nje numer ose simbol.");
+	return false;
+	
+	}
+	
+
+    public static void createUser1(String[] args)
+    {
+    	if(args.length != 2)
+		{
+			System.out.println("Numer jo i sakte i argumenteve!");
+			System.out.println("Komanda duhet te shkruhet kesisoj: ds create-user <name>");
+		}
+		else
+		{
+			try {
+				KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("RSA");
+				keyPairGenerator.initialize(512);
+				KeyPair keyPair = keyPairGenerator.generateKeyPair();
+				
+				keyPair.getPublic();
+				keyPair.getPrivate();
+				
+				
+				
+				KeyFactory kf = KeyFactory.getInstance("RSA");
+				RSAPrivateCrtKeySpec ks;
+
+				try {
+					ks = kf.getKeySpec(
+					    keyPair.getPrivate(), RSAPrivateCrtKeySpec.class);
+								
+					String cPrivat =String.valueOf(ks.getModulus()) + String.valueOf( ks.getPublicExponent()) +
+							String.valueOf( ks.getPrimeP()) +String.valueOf( ks.getPrimeQ()) +
+							String.valueOf( ks.getPrimeExponentP()) + String.valueOf( ks.getPrimeExponentQ()) +
+							String.valueOf( ks.getCrtCoefficient()) + String.valueOf( ks.getPrivateExponent())
+							;
+							
+										
+						String cPublik = String.valueOf( ks.getModulus()) +
+								String.valueOf( ks.getPublicExponent());
+					
+					
+					String emri = args[1];
+					
+					String pathPri = "keys/"+emri+".xml";
+					String pathPub = "keys/"+emri+".pub.xml";
+					
+					File qelesiPerKrijimPub = new File(pathPub);
+					File qelesiPerKrijimPri = new File(pathPri);
+					boolean existsPu = qelesiPerKrijimPub.exists();
+					boolean existsPr = qelesiPerKrijimPri.exists();
+					
+					if(existsPu || existsPr)
+					{
+						System.out.println(" Gabim celesi '"+args[1]+"' ekziston paraprakisht!");
+					}
+					else {
+					try {
+						ruajXML(cPrivat, pathPri);
+						ruajXML(cPublik, pathPub);
+						System.out.println("Eshte krijuar celesi publik '"+emri+".pub.xml");
+						System.out.println("Eshte krijuar celesi privat '" +emri+".xml");
+					} catch (IOException e) {
+						
+						e.printStackTrace();
+					}
+					}
+
+					
+					
+					
+				} catch (InvalidKeySpecException e) {
+					
+					e.printStackTrace();
+				}
+				
+				
+				//System.out.println(publicKey);
+				//System.out.println(privateKey);
+				
+			} catch (NoSuchAlgorithmException e) {
+				
+				e.printStackTrace();
+			}
+		}
+    }
+    
+    
+    public static void deleteUser1(String[] args)
+    {
+    	if(args.length != 2)
+		{
+			System.out.println("Numer jo i sakte i argumenteve!");
+			System.out.println("Komanda duhet te shkruhet kesisoj: ds delete-user <name>");
+		}
+		else
+		{
+			String fajlliPu = "keys/"+args[1]+".pub.xml";
+			String fajlliPr = "keys/"+args[1]+".xml";
+			File qelesiPerFshirjePu = new File(fajlliPu);
+			File qelesiPerFshirjePr = new File(fajlliPr);
+			
+			
+			boolean existsPu = qelesiPerFshirjePu.exists();
+			boolean existsPr = qelesiPerFshirjePr.exists();
+			
+			if(existsPu || existsPr)
+			{
+				if(existsPu)
+				{
+					if (qelesiPerFshirjePu.isFile())
+					{	
+					qelesiPerFshirjePu.delete();
+					System.out.println("Eshte larguar celesi publik '" +fajlliPu +"'");
+					}
+					else
+					{
+						System.out.println(" Useri '"+args[1]+"' nuk eshte fajll!");
+					}
+						
+				}
+				if(existsPr)
+				{
+					if (qelesiPerFshirjePr.isFile())
+					{	
+					qelesiPerFshirjePr.delete();
+					System.out.println("Eshte larguar celesi privat '" +fajlliPr +"'");
+				    }
+					else
+					{
+						System.out.println(" Useri '"+args[1]+"' nuk eshte fajll!");
+					}
+						
+				}
+			}
+			else
+			{
+				System.out.println(" Gabim celesi '"+args[1]+"' nuk ekziston!");
+			}
+			
+		}
+    }
+	public static void ruajXML(String celesi, String path) throws IOException 
+	{
+	     
+	    FileWriter fileWriter = new FileWriter(path);
+	    fileWriter.write(celesi);
+	    fileWriter.close();
+	}
+	
+	
+	private static String OpenFilePrivate(String emri) {
+		String fileString="";
+		String fajlliPerEksportimPri = "keys/"+emri+".xml";
+		Scanner sc;
+		
+		
+    	File filePri = new File(fajlliPerEksportimPri);
+		boolean existsPr = filePri.exists();
+		
+		if(existsPr)
+		{
+			try {
+				sc = new Scanner(filePri);
+				while (sc.hasNextLine()) 
+					fileString+=sc.nextLine();
+			} catch (FileNotFoundException e) {
+				
+				e.printStackTrace();
+			}
+		}
+		else
+		{
+			System.out.println("Nuk ekziston");
+			}
+	
+	return fileString;
+	}
+	private static String OpenFilePublic(String emri) {
+		String fileString="";
+		String fajlliPerEksportimPri = "keys/"+emri+".pub.xml";
+		Scanner sc;
+		
+		
+    	File filePri = new File(fajlliPerEksportimPri);
+		boolean existsPr = filePri.exists();
+		
+		if(existsPr)
+		{
+			try {
+				sc = new Scanner(filePri);
+				while (sc.hasNextLine()) 
+					fileString+=sc.nextLine();
+			} catch (FileNotFoundException e) {
+				
+				e.printStackTrace();
+			}
+		}
+		else
+		{
+			System.out.println("Nuk ekziston");
+			}
+	
+	return fileString;
+	}
+	public static void exportKey(String[] args)
+    {
+    	
+    	if(args.length == 3)
+		{
+    		Scanner sc;
+			if(args[1].equals("public"))
+			{
+				String fajlliPerEksportimPub = "keys/"+args[2]+".pub.xml";
+				File filePu = new File(fajlliPerEksportimPub);
+				boolean existsPu = filePu.exists();
+				if(existsPu)
+				{
+					try {
+						sc = new Scanner(filePu);
+						while (sc.hasNextLine()) 
+							System.out.println(sc.nextLine());
+					} catch (FileNotFoundException e) {
+						
+						e.printStackTrace();
+					}
+				}
+				else
+				{
+					System.out.println("Celesi publik '"+args[2]+".pub.xml' nuk ekziston!");
+				}
+			}
+			else if(args[1].equals("private"))
+			{
+				String fajlliPerEksportimPri = "keys/"+args[2]+".xml";
+		    	File filePri = new File(fajlliPerEksportimPri);
+				boolean existsPr = filePri.exists();
+				
+				if(existsPr)
+				{
+					try {
+						sc = new Scanner(filePri);
+						while (sc.hasNextLine()) 
+							System.out.println(sc.nextLine());
+					} catch (FileNotFoundException e) {
+						
+						e.printStackTrace();
+					}
+				}
+				else
+				{
+					System.out.println("Celesi privat '"+args[2]+".xml' nuk ekziston!");
+				}
+			}
+			else
+			{
+				System.out.println("Argumenti i dytÃ« eshte shkruajtur gabim, argumenti i dyte duhet te jete public ode private!");
+			}
+		}
+    	else if(args.length == 4)
+    	{
+    		if(args[1].equals("public"))
+			{
+    			
+    			String fajlliPerEksportimPub = "keys/"+args[2]+".pub.xml";
+				File filePu = new File(fajlliPerEksportimPub);
+				boolean existsPu = filePu.exists();
+				
+				if(existsPu)
+				{
+					boolean pathValid = isPathValid(args[3]);
+					if(pathValid)
+					{
+						FileInputStream instream = null;
+		    			FileOutputStream outstream = null;
+		    		 
+		    		    	try{
+		    		    	    File infile =new File(fajlliPerEksportimPub);
+		    		    	    File outfile =new File(args[3]+".pub.xml");
+		    		 
+		    		    	    instream = new FileInputStream(infile);
+		    		    	    outstream = new FileOutputStream(outfile);
+		    		 
+		    		    	    byte[] buffer = new byte[1024];
+		    		 
+		    		    	    int length;
+		    		    	   
+		    		    	    while ((length = instream.read(buffer)) > 0){
+		    		    	    	outstream.write(buffer, 0, length);
+		    		    	    }
+
+		    		    	    instream.close();
+		    		    	    outstream.close();
+		    		    	    
+		    		    	    System.out.println("Celesi publik u ruajt ne fajllin '"+args[3]+".pub.xml'");
+		    		    	    
+		    		    	}catch(IOException ioe){
+		    		    		ioe.printStackTrace();
+		    		    	 }
+					}
+					else
+					{
+						System.out.println("Shtegu i dhÃ«nÃ« Ã«shtÃ« i gabuar!");
+					}
+				}
+				else
+				{
+					System.out.println("Celesi publik '"+args[2]+".pub.xml' nuk ekziston!");
+				}
+				
+			}
+    		else if(args[1].equals("private"))
+			{
+    			String fajlliPerEksportimPri = "keys/"+args[2]+".xml";
+				File filePu = new File(fajlliPerEksportimPri);
+				boolean existsPr = filePu.exists();
+				
+				if(existsPr)
+				{
+					boolean pathValid = isPathValid(args[3]);
+					if(pathValid)
+					{
+						FileInputStream instream = null;
+		    			FileOutputStream outstream = null;
+		    		 
+		    		    	try{
+		    		    	    File infile =new File(fajlliPerEksportimPri);
+		    		    	    File outfile =new File(args[3]+".xml");
+		    		 
+		    		    	    instream = new FileInputStream(infile);
+		    		    	    outstream = new FileOutputStream(outfile);
+		    		 
+		    		    	    byte[] buffer = new byte[1024];
+		    		 
+		    		    	    int length;
+		    		    	   
+		    		    	    while ((length = instream.read(buffer)) > 0){
+		    		    	    	outstream.write(buffer, 0, length);
+		    		    	    }
+
+		    		    	    instream.close();
+		    		    	    outstream.close();
+		    		    	    
+		    		    	    System.out.println("Celesi privat u ruajt ne fajllin '"+args[3]+".xml'");
+		    		    	    
+		    		    	    
+		    		    	}catch(IOException ioe){
+		    		    		ioe.printStackTrace();
+		    		    	 }
+					}
+					else
+					{
+						System.out.println("Shtegu i dhÃ«nÃ« Ã«shtÃ« i gabuar!");
+					}
+				}
+				else
+				{
+					System.out.println("Celesi privat '"+args[2]+".xml' nuk ekziston!");
+				}
+			}
+    		else
+    		{
+    			System.out.println("Argumenti i dytÃ« eshte shkruajtur gabim, argumenti i dyte duhet te jete public ode private!");
+    		}
+    	}
+		else
+		{
+			
+			System.out.println("Numer jo i sakte i argumenteve!");
+			System.out.println("Komanda duhet te shkruhet kesisoj:  ds export-key <public|private> <name>");
+			System.out.println("ose");
+			System.out.println("Komanda duhet te shkruhet kesisoj:  ds export-key <public|private> <name> [file]");
+			
+			
+		}
+    	
+    }
+    
+    public static boolean isPathValid(String path) {
+
+        try {
+
+            Paths.get(path);
+
+        } catch (InvalidPathException ex) {
+            return false;
+        }
+
+        return true;
+    }
+	
+	
+    //===================================================================================================
+    //Import Key
+    //===================================================================================================
+    
+    public static void importKey(String[] args) throws IOException, InterruptedException
+    {
+    	if(args.length==3)
+    	{
+    		
+    		String fajlliPerRuajtje = args[1];
+			File fileRu = new File(fajlliPerRuajtje);
+			boolean exists = fileRu.exists();
+			
+			if(!exists)
+			{
+				if(args[2].startsWith("http:") || args[2].startsWith("https:"))
+				{
+					if(existsUrl(args[2]))
+					{						
+						HttpClient client = HttpClient.newHttpClient();
+				        HttpRequest request = HttpRequest.newBuilder()
+				                .uri(URI.create(args[2]))
+				                .build();
+
+				        HttpResponse<String> response = client.send(request,
+				                HttpResponse.BodyHandlers.ofString());
+				        
+				        String[] lines = response.body().split("\r\n|\r|\n");
+				        
+				        //System.out.println(lines.length);
+				        if(lines.length==4)
+				        {
+				        FileWriter myWriter = new FileWriter(args[1]+".pub.xml");
+				        myWriter.write(response.body());
+				        myWriter.close();
+				        }
+				        else if(lines.length==10)
+				        {
+				        FileWriter myWriter = new FileWriter(args[1]+".xml");
+				        myWriter.write(response.body());
+				        myWriter.close();
+				        
+				        FileWriter myWriter2 = new FileWriter(args[1]+".pub.xml");
+				        for(int i=0;i<3;i++)
+				        {	
+				        myWriter2.append(lines[i]+"\n");
+				        }
+				        myWriter2.append("</RSAKeyValue>");
+				        myWriter2.close();
+				        }
+				        else
+				        {
+				        	System.out.println("Fajlli i specifikuar per importim nuk permban te dhenat ne teresi!");
+				        }
+					}
+					else
+					{
+						System.out.println("Url e dhene nuk ekziston!");
+					}
+				}
+				else
+				{
+					boolean pathValid = isPathValid(args[2]);
+					if(pathValid)
+					{
+						if(args[2].endsWith(".xml"))
+						{	
+		    		    	try{
+		    		    		String fajlliPerImportim = args[2];
+		    		    	    File infile =new File(fajlliPerImportim);
+		    		    	    File outfile = null;
+		    		    	    
+		    		    	    FileInputStream instream = new FileInputStream(infile);
+    		    	    		
+		    		 
+		    		    	    byte[] buffer = new byte[1024];
+		    		 
+		    		    	    int length;
+		    		    	    
+		    		    	    if(infile.exists())
+		    		    	    {
+		    		    	    	if(numeroRreshtat(fajlliPerImportim)==4)
+			    		    	    {
+		    		    	    		outfile =new File(args[1]+".pub.xml");
+		    		    	    		FileOutputStream outstream = new FileOutputStream(outfile);
+		    		    	    						    		    	   
+				    		    	    while ((length = instream.read(buffer)) > 0){
+				    		    	    	outstream.write(buffer, 0, length);
+				    		    	    }
+
+				    		    	    instream.close();
+				    		    	    outstream.close();
+				    		    	    
+				    		    	    System.out.println("Celesi publik u ruajt ne fajllin '"+args[1]+".pub.xml'");
+			    		    	    }
+		    		    	    	else if(numeroRreshtat(fajlliPerImportim)==10)
+		    		    	    	{
+		    		    	    		outfile =new File(args[1]+".xml");
+		    		    	    		FileOutputStream outstream = new FileOutputStream(outfile);
+		    		    	    		
+				    		    	   
+				    		    	    while ((length = instream.read(buffer)) > 0){
+				    		    	    	outstream.write(buffer, 0, length);
+				    		    	    }
+
+				    		    	    instream.close();
+				    		    	    outstream.close();
+				    		    	    
+				    		    	    System.out.println("Celesi privat u ruajt ne fajllin '"+args[1]+".xml'");
+				    		    	    
+				    		    	    String[] celesiKomplet = readLineByLineJava(args[2]).split("\r\n|\r|\n");
+		    		    	  
+				    		    	    FileWriter myWriter2 = new FileWriter(args[1]+".pub.xml");
+								        for(int i=0;i<3;i++)
+								        {	
+								        myWriter2.append(celesiKomplet[i]+"\n");
+								        }
+								        myWriter2.append("</RSAKeyValue>");
+								        myWriter2.close();
+				    		    	    
+
+				    		    	    
+				    		    	    System.out.println("Celesi publik u ruajt ne fajllin '"+args[1]+".pub.xml'");
+				    		    	    
+				    		    	    
+				    		    	    
+				    		           
+		    		    	    		
+		    		    	    	}
+		    		    	    	else
+		    		    	    	{
+		    		    	    		System.out.println("Fajlli i specifikuar per importim nuk permban te dhenat ne teresi!");
+		    		    	    	}
+		    		    	    }
+		    		 
+		    		    	}
+		    		    	    
+		    		    	    
+		    		    	catch(IOException ioe){
+		    		    		ioe.printStackTrace();
+		    		    	 }
+						}
+						else
+						{
+							System.out.println("Gabim: Fajlli i dhene nuk eshte celes valid!");
+						}
+					}
+					else
+					{
+						System.out.println("Shtegu i dhÃ«nÃ« Ã«shtÃ« i gabuar!");
+					}
+				}
+				
+			}
+			else
+			{
+				System.out.println("Celesi '"+args[1]+"' ekziston paraprakisht!");
+			}
+    	}
+		else
+		{
+			
+			System.out.println("Numer jo i sakte i argumenteve!");
+			System.out.println("Komanda duhet te shkruhet kesisoj:  ds import-key <name> <path>");
+			
+		}
+    	
+    }
+    
+    private static String readLineByLineJava(String filePath) 
+    {
+        StringBuilder contentBuilder = new StringBuilder();
+        try (Stream<String> stream = Files.lines( Paths.get(filePath), StandardCharsets.UTF_8)) 
+        {
+            stream.forEach(s -> contentBuilder.append(s).append("\n"));
+        }
+        catch (IOException e) 
+        {
+            e.printStackTrace();
+        }
+        return contentBuilder.toString();
+    }
+ 
+    public static int numeroRreshtat(String fajlli)
+    {
+    	int linenumber = 0;
+    	try{
+
+    		File file =new File(fajlli);
+
+
+    		    FileReader fr = new FileReader(file);
+    		    LineNumberReader lnr = new LineNumberReader(fr);
+
+    		    
+
+    	            while (lnr.readLine() != null){
+    	        	linenumber++;
+    	            }
+
+
+    	            lnr.close();    		
+
+    	}catch(IOException e){
+    		e.printStackTrace();
+    	}
+		return linenumber;
+    }
+    
+    public static boolean existsUrl(String url1)
+    {
+    	URL url;
+    	HttpURLConnection huc;
+    	int responseCode;
+    	boolean ekziston=true;
+		try {
+			url = new URL(url1);
+			huc = (HttpURLConnection) url.openConnection();
+	    	responseCode = huc.getResponseCode();
+	    	
+	    	if (responseCode != 404) {
+	        	ekziston=true;
+	        	} else {
+	        	ekziston=false;
+	        	}
+	    	
+		} catch (MalformedURLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+    	
+    	
+    	
+    	return ekziston;
+    }
+  //===================================================================================================
+  //Write Message
+  //===================================================================================================
+    
+    public static void writeMessage(String[] args) throws Exception
+    {
+    	//ds write-message <name>-celesi publik <message> [file]-fajlli ku ruhet mesazhi opcional
+
+    	//String ciphertext = base64(utf8(args[1])).base64(iv).base64(key).base64(des(args[2]));
+    	
+    	String fajlliMeCeles = args[1]+".xml";
+	    File cFile =new File(fajlliMeCeles);
+	    
+	    if(cFile.exists())
+	    {
+	    	
+	    	SecureRandom sr = new SecureRandom();
+			long iv = new Random(10000000).nextInt(99999999);
+			long key = new Random(10000000).nextInt(99999999);
+	        
+	    	
+	    	byte[] utf8Bytes;
+	    	String encodedName;
+	    	String encodedIv;
+	    	String encodedKey;
+	    	
+	    	
+	    	try {
+				utf8Bytes = args[1].getBytes("UTF8");
+				encodedName = Base64.getEncoder().encodeToString(utf8Bytes);
+				encodedIv = Base64.getEncoder().encodeToString(String.valueOf(iv).getBytes());
+				
+				File file = new File(args[1]+".xml");
+				
+				DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();  
+				DocumentBuilder db = dbf.newDocumentBuilder();  
+				Document doc = db.parse(file);  
+				doc.getDocumentElement().normalize(); 
+				NodeList nodeList = doc.getElementsByTagName("RSAKeyValue");  
+				
+
+				Node node = nodeList.item(0);  
+				 
+				
+				Element eElement = (Element) node;  
+				System.out.println("Modulus: "+ eElement.getElementsByTagName("Modulus").item(0).getTextContent());  
+				System.out.println("Exponent: "+ eElement.getElementsByTagName("Exponent").item(0).getTextContent());  
+				//System.out.println("D: "+ eElement.getElementsByTagName("D").item(0).getTextContent());  
+
+				String modulusElement = eElement.getElementsByTagName("Modulus").item(0).getTextContent();
+				String exponentElement = eElement.getElementsByTagName("Exponent").item(0).getTextContent();
+				//String dElement = eElement.getElementsByTagName("D").item(0).getTextContent();
+				
+				
+				
+				BigInteger modulus = new BigInteger(modulusElement, 16);
+				//BigInteger exponent = new BigInteger(dElement, 16);
+				BigInteger pubExponent = new BigInteger(exponentElement);
+						
+				
+				//RSAPrivateKeySpec privateSpec = new RSAPrivateKeySpec(modulus, exponent);
+				RSAPublicKeySpec publicSpec = new RSAPublicKeySpec(modulus, pubExponent);
+						
+			
+				KeyFactory factory = KeyFactory.getInstance("RSA");
+						
+				
+				//PrivateKey priv = factory.generatePrivate(privateSpec);
+				PublicKey pub = factory.generatePublic(publicSpec);
+				
+			
+		        
+
+		        String plainText = args[2];
+		        
+		        String encryptedKeyRSA = encryptKeyWRSA(plainText, pub);
+		        
+		        encodedKey = Base64.getEncoder().encodeToString(encryptedKeyRSA.getBytes());
+		        
+		        
+				String mesazhi = args[2]; 
+
+			    String tekstiEnkriptuar = encryptDes(mesazhi, String.valueOf(iv), String.valueOf(key));
+				
+			    String cipherText = encodedName+"."+encodedIv+"."+encodedKey+"."+tekstiEnkriptuar;
+			    
+			    if(args.length==3)
+			    {
+			    	System.out.println(cipherText);
+			    }
+			    else if(args.length==4)
+			    {
+			    	FileWriter fileEncText = new FileWriter(args[3]+".txt");
+			    	fileEncText.append(cipherText);
+			    	fileEncText.close();
+			    	System.out.println("Mesazhi i enkriptuar u ruajt ne fajllin '"+args[3]+".txt'.");
+			    }
+			    else
+			    {
+			    	System.out.println("Komanda eshte shkruajtur gabim, komanda duhet te jete kesisoj:");
+			    	System.out.println("ds write-message <name> <message>");
+			    	System.out.println("ose");
+			    	System.out.println("ds write-message <name> <message> [file]");
+			    }
+			    
+			   
+
+				
+			} catch (UnsupportedEncodingException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+	    }
+	    else
+	    {
+	    	System.out.println("Gabim: Celesi publik '"+args[1]+"' nuk ekziston.");
+	    }
+    	
+    	
+    }
+    
+    private static String encryptKeyWRSA(String plainText, PublicKey publicKey) throws Exception {
+        Cipher cipher = Cipher.getInstance("RSA");
+        cipher.init(Cipher.ENCRYPT_MODE, publicKey);
+        return Base64.getEncoder().encodeToString(cipher.doFinal(plainText.getBytes()));
+    }
+    
+    
+    //============enkriptimi des
+    
+    public static String encryptDes(String value, String initVector, String celesi) {
+    	try {
+    		IvParameterSpec iv = new IvParameterSpec(initVector.getBytes("UTF-8"));
+    		SecretKeySpec skeySpec = new SecretKeySpec(celesi.getBytes("UTF-8"), "AES");
+
+    		Cipher cipher = Cipher.getInstance("DES/CBC/PKCS5PADDING");
+    		cipher.init(Cipher.ENCRYPT_MODE, skeySpec, iv);
+
+    		byte[] encrypted = cipher.doFinal(value.getBytes());
+    		//return Base64.encodeBase64String(encrypted);
+    		return Base64.getEncoder().encodeToString(cipher.doFinal(value.getBytes("UTF-8")));
+    	} catch (Exception ex) {
+    		ex.printStackTrace();
+    	}
+    	return null;
+    }
+    
+    public static String decryptDes(String encrypted, String initVector, String celesi) {
+    	try {
+    		IvParameterSpec iv = new IvParameterSpec(initVector.getBytes("UTF-8"));
+    		SecretKeySpec skeySpec = new SecretKeySpec(celesi.getBytes("UTF-8"), "AES");
+
+    		Cipher cipher = Cipher.getInstance("DES/CBC/PKCS5PADDING");
+    		cipher.init(Cipher.DECRYPT_MODE, skeySpec, iv);
+    		byte[] original = cipher.doFinal(Base64.getDecoder().decode(encrypted));
+    		
+    		//String bytesEncoded = Base64.getEncoder().withoutPadding().encodeToString(tekstiEnkriptuar.getBytes());
+
+    		return new String(original);
+    	} catch (Exception ex) {
+    		ex.printStackTrace();
+    	}
+
+    	return null;
+    }
+    
+    
+    
+    
+    //===================================================================================================
+    //Read Message
+    //===================================================================================================
+	
+    public static void readMessage(String[] args)
+    {
+    	
+    }
+    
+    
+    
+    
+    //===================================================================================================
+    //Projekti I Pare
+    //===================================================================================================
+    
+  //===================================================================================================
+  //Rail
+  //===================================================================================================
+    
+    public static boolean aEshteNr(String s)
+    {
+    	boolean rez = true;
+    	int gjatesia = s.length();
+    	if(gjatesia == 0)
+    	{
+    		rez = false;
+    	}
+    	else
+    	{
+    		for(int j = 0; j<gjatesia; j++)
+    		{
+    			rez = rez && Character.isDigit(s.charAt(j));
+    		}
+    	}
+    	
+    	
+    	
+		return rez;
+    	
+    }
+    
+    
+    private static String enkriptoRailFence(String mesazhi, int shiritat, boolean show)
+	{
+		String mesazhiEn = mesazhi.replaceAll("\\s+", "");
+		int gjatesiaM = mesazhiEn.length();
+		String cipher ="";
+		if(gjatesiaM > 0)
+		{	
+			int plotpjestimi = gjatesiaM % shiritat;
+			if(plotpjestimi == 0)
+			{
+				int kolonat = gjatesiaM/shiritat;
+				String[][] shkronjat = new String[shiritat][kolonat];
+				int shkronjaRadhes = 0; 
+				for(int i = 0; i< shiritat; i++)
+				{
+					for(int j = 0; j < kolonat; j++)
+					{
+						shkronjat[i][j]=String.valueOf(mesazhiEn.charAt(shkronjaRadhes));
+						shkronjaRadhes = shkronjaRadhes + shiritat;
+						if(j==kolonat-1)
+						{
+							shkronjaRadhes = i+1;
+						}
+						
+					}
+				}
+				//System.out.println("Mesazhi i enkriptuar Ã«shtÃ«:");
+				if(show)
+				{
+					for (int i = 0; i < shkronjat.length; i++) 
+					{	
+			            for (int j = 0; j < shkronjat[i].length; j++) {
+			                cipher = cipher + shkronjat[i][j] + " "; 
+					}
+					cipher = cipher + "\n";
+					}
+				}
+				else
+				{	
+				for (int i = 0; i < shkronjat.length; i++) 
+		            for (int j = 0; j < shkronjat[i].length; j++) 
+		                cipher = cipher + shkronjat[i][j]; 
+				}
+				
+				
+			}
+			else
+			{
+				if(gjatesiaM < shiritat)
+				{
+					System.out.println("GjatÃ«sia e mesazhit tuaj Ã«shtÃ« mÃ« e vogÃ«l sesa numri i shiritave tÃ« zgjedhur!");			
+				}
+				else
+				{
+					
+					String mesazhiPlotesuar = mesazhiEn + "w".repeat(shiritat - plotpjestimi);
+					int kolonat = mesazhiPlotesuar.length()/shiritat;
+					
+					String[][] shkronjat = new String[shiritat][kolonat]; 
+					int shkronjaRadhes = 0;
+					for(int i = 0; i< shiritat; i++)
+					{
+						for(int j = 0; j < kolonat; j++)
+						{
+							shkronjat[i][j]=String.valueOf(mesazhiPlotesuar.charAt(shkronjaRadhes));
+							shkronjaRadhes = shkronjaRadhes + shiritat;
+							if(j==kolonat-1)
+							{
+								shkronjaRadhes = i+1;
+							}
+							
+						}
+					}
+					if(show)
+					{
+						for (int i = 0; i < shkronjat.length; i++) 
+						{	
+				            for (int j = 0; j < shkronjat[i].length; j++) 
+				            {
+				                cipher = cipher + shkronjat[i][j] + " "; 
+				            }    
+				            cipher = cipher + "\n";
+						}
+						
+					}
+					else
+					{	
+					for (int i = 0; i < shkronjat.length; i++) 
+			            for (int j = 0; j < shkronjat[i].length; j++) 
+			                cipher = cipher + shkronjat[i][j]; 
+					}
+				}
+			 
+			}
+		}
+		else 
+		{
+			System.out.println("Ju duhet tÃ« shkruani njÃ« mesazh pÃ«r enkriptim!");
+		}
+		return cipher;
+	}
+
+	
+	private static String dekriptoRailFence(String mesazhi, int shiritat, boolean show)
+	{
+		String mesazhiDe = mesazhi.replaceAll("\\s+", "");
+		int gjatesiaM = mesazhiDe.length();
+		String plain="";
+		if(gjatesiaM > 0)
+		{
+			int rreshtat = gjatesiaM/shiritat;
+			String[][] shkronjat = new String[rreshtat][shiritat]; 
+			int shkronjaRadhes = 0;  
+			for(int i = 0; i< rreshtat; i++)
+			{
+				for(int j = 0; j < shiritat; j++)
+				{
+					shkronjat[i][j]=String.valueOf(mesazhiDe.charAt(shkronjaRadhes));
+					shkronjaRadhes = shkronjaRadhes + rreshtat;
+					if(j==shiritat-1)
+					{
+						shkronjaRadhes = i+1; 
+					}
+					
+				}
+			}
+			
+			String mesazhiDekriptuar="";
+			if(show)
+			{
+				for (int i = 0; i < shkronjat.length; i++) 
+				{	
+		            for (int j = 0; j < shkronjat[i].length; j++)
+		            {
+		                mesazhiDekriptuar = mesazhiDekriptuar + shkronjat[i][j] + " ";
+		            }
+		            mesazhiDekriptuar = mesazhiDekriptuar + "\n";
+				}
+				plain = mesazhiDekriptuar.replace("w", "");
+			}
+			else {
+	        for (int i = 0; i < shkronjat.length; i++) 
+	            for (int j = 0; j < shkronjat[i].length; j++) 
+	                mesazhiDekriptuar = mesazhiDekriptuar + shkronjat[i][j]; 
+	        
+	        plain = mesazhiDekriptuar.replace("w", "");
+			}
+		}
+		else
+		{
+			System.out.println("Ju duhet tÃ« shkruani njÃ« mesazh pÃ«r enkriptim!");
+		}
+		return plain;
+	}
+	
+    public static void railFence(String[] args)
+    {
+    	String veprimi = args[1];
+		int shiritat = 1;
+		if(aEshteNr(args[2]))
+		{
+			shiritat = Integer.valueOf(args[2]);
+		}
+		else
+		{
+			System.out.println("Argumenti i trete duhet te jete numer qe tregon se ne sa shirita te ndahet mesazhi!");
+			System.exit(0);
+		}
+		String tekstiHyrje = args[3];
+		if(veprimi.contentEquals("encrypt"))
+		{
+			if(args.length == 5)
+			{
+				if(args[4].equals("show"))
+				{
+					System.out.println("Teksti i enkriptuar:");
+					System.out.println(enkriptoRailFence(tekstiHyrje, shiritat, true ));
+				}
+				else
+				{
+					System.out.println("Per te shfaqur ciphertekstin te organizuar ne shirita argumenti i peste(i fundit) duhet te jete show.");
+					System.exit(0);
+				}
+				
+			}
+			else if(args.length == 4)
+			{
+				System.out.println("Teksti i enkriptuar:");
+				System.out.println(enkriptoRailFence(tekstiHyrje, shiritat, false));
+			}
+			else
+			{
+				System.out.println("Komanda duhet te jete kesisoj: ds rail-fence encrypt <rails> <plaintext>");
+				System.out.println("ose");
+				System.out.println("Komanda duhet te jete kesisoj: ds rail-fence encrypt <rails> <plaintext> show");
+				System.exit(0);
+				
+			}
+		}
+		else if(veprimi.contentEquals("decrypt"))
+		{
+			if(args.length == 5)
+			{
+				if(args[4].equals("show"))
+				{
+					System.out.println("Teksti i dekriptuar:");
+					System.out.println(dekriptoRailFence(tekstiHyrje, shiritat, true ));
+				}
+				else
+				{
+					System.out.println("Per te shfaqur ciphertekstin te organizuar ne shirita argumenti i peste(i fundit) duhet te jete show.");
+					System.exit(0);
+				}
+				
+			}
+			else if(args.length == 4)
+			{
+				System.out.println("Teksti i dekriptuar:");
+				System.out.println(dekriptoRailFence(tekstiHyrje, shiritat, false ));
+			}
+			else
+			{
+				System.out.println("Komanda duhet te jete kesisoj: ds rail-fence decrypt <rails> <plaintext>");
+				System.out.println("ose");
+				System.out.println("Komanda duhet te jete kesisoj: ds rail-fence decrypt <rails> <plaintext> show");
+				System.exit(0);
+			}
+		}
+		else
+		{
+			System.out.println("Veprimi i caktuar permes argumentit te dyte eshte shkruajtur gabim! Veprimet e mundshme jane encrypt dhe decrypt.");
+			System.exit(0);
+		}
+    }
+	
+	
+	
+	//===================================================================================================
+	//===================================================================================================
+	
+   
+    public static void foursq(String[] args) {
+    	
+			System.out.println("Teksti:"+args[2]);
+			System.out.println("Celesi i pare:"+args[3]);
+			System.out.println("Celesi i dyte:"+args[4]);
+		if (args[1].equals("encrypt"))
+		{
+			System.out.println("Teksi i Dekriptuar eshte: "+encryptFS(args[2],args[3],args[4]));
+		}
+		else if(args[1].equals("decrypt"))
+		{
+			System.out.println("Teksi i Dekriptuar eshte: "+decryptFS(args[2],args[3],args[4]));
+
+		}
+		else {
+			System.out.println("Shtypet diqka gabim!!!");
+			System.exit(1);
+		}
+	}
+	 private static final char[] ALFABETI = "ABCDEFGHIJKLMNOPRSTUVWXYZ".toCharArray();
+
+	    private static final char[][] ALFABETI_KATROR = new char[5][5];
+
+	    //bllok statik per te populluar matricen alfabeti katror
+	    static {
+	        int x = 0, y = 0;
+	        for (char c : ALFABETI) {
+	            ALFABETI_KATROR[x][y] = c;
+	            x++;
+	            if (x == 5) {
+	                x = 0;
+	                y++;
+	            }
+	        }
+	    }
+
+
+	    private static String clean(String input) {
+	    	//int a='"';
+	        input = input.trim().replace("", "").replace("Q", "").toUpperCase();
+	        StringBuilder clean = new StringBuilder();
+	        for (char c : input.toCharArray()) {
+	            if (Character.getType(c) == Character.UPPERCASE_LETTER) {
+	                clean.append(c);
+	            }
+	        }
+	        return clean.toString();
+	    }
+
+
+	     //Gjeneron nje table 5*5 te qelesave per fjalen kyqe te specifikuar
+	    private static char[][] generateKeyTable(String keyword) {
+	        keyword = clean(keyword);
+	        char[][] keyTable = new char[5][5];
+	        List<Character> used = new ArrayList<Character>();
+	        int x = 0, y = 0;
+	        for (char c : keyword.toCharArray()) {
+	            if (!used.contains(c)) {
+	                keyTable[x][y] = c;
+	                used.add(c);
+	                x++;
+	                if (x == 5) {
+	                    x = 0;
+	                    y++;
+	                    if (y == 5) {
+	                        return keyTable;
+	                    }
+	                }
+	            }
+	        }
+	        for (char c : ALFABETI) {
+	            if (!used.contains(c)) {
+	                keyTable[x][y] = c;
+	                x++;
+	                if (x == 5) {
+	                    x = 0;
+	                    y++;
+	                    if (y == 5) {
+	                        return keyTable;
+	                    }
+	                }
+	            }
+	        }
+	        return keyTable;
+	    }
+
+
+	    //ndan stringun ne stringje dy-shkronjeshe
+	    private static String[] split(String plaintext) {
+	        if (plaintext.length() % 2 != 0) {
+	            plaintext = plaintext + "X";
+	        }
+	        String[] pairs = new String[plaintext.length() / 2];//array i stringjeve dyshkronjeshe
+	        int count = 0;
+	        for (int i = 0; i < (plaintext.length() / 2); i++) {
+	            pairs[i] = plaintext.substring(count, count + 2);
+	            count = count + 2;
+	        }
+	        return pairs;
+	    }
+
+	    // enkriptimi i plaintekstit 
+	    public static String encryptFS(String plaintext, String keyword1, String keyword2) {
+	        plaintext = clean(plaintext);
+	        String[] pairs = split(plaintext);
+	        char[][] keytable1 = generateKeyTable(keyword1);
+	        char[][] keytable2 = generateKeyTable(keyword2);
+	        char first, second;
+	        int xFirst = 0, yFirst = 0, xSecond = 0, ySecond = 0;
+	        StringBuilder ciphertext = new StringBuilder();
+	        for (String s : pairs) {
+	            first = s.charAt(0);
+	            second = s.charAt(1);
+	            for (int y = 0; y < 5; y++) {
+	                for (int x = 0; x < 5; x++) {
+	                    if (ALFABETI_KATROR[x][y] == first) {
+	                        xFirst = x;
+	                        yFirst = y;
+	                    } else if (ALFABETI_KATROR[x][y] == second) {
+	                        xSecond = x;
+	                        ySecond = y;
+	                    }
+	                }
+	            }
+	            ciphertext.append(keytable1[xSecond][yFirst]).append(keytable2[xFirst][ySecond]);
+	        }
+	        return ciphertext.toString();
+	    }
+
+	    //dekriptimi
+	    public static String decryptFS(String ciphertext, String keyword1, String keyword2) {
+	        String[] pairs = split(ciphertext);
+	        char[][] keytable1 = generateKeyTable(keyword1);
+	        char[][] keytable2 = generateKeyTable(keyword2);
+	        char first, second;
+	        int xFirst = 0, yFirst = 0, xSecond = 0, ySecond = 0;
+	        StringBuilder plaintext = new StringBuilder();
+	        for (String s : pairs) {
+	            first = s.charAt(0);
+	            second = s.charAt(1);
+	            for (int y = 0; y < 5; y++) {
+	                for (int x = 0; x < 5; x++) {
+	                    if (keytable1[x][y] == first) {
+	                        xFirst = x;
+	                        yFirst = y;
+	                    } else if (keytable2[x][y] == second) {
+	                        xSecond = x;
+	                        ySecond = y;
+	                    }
+	                }
+	            }
+	            plaintext.append(ALFABETI_KATROR[xSecond][yFirst]).append(ALFABETI_KATROR[xFirst][ySecond]);
+	        }
+	        return plaintext.toString();
+	    }
+    public static void leximi(String [] args) {  
+    	// nese nuk shtypet najnjona prej ktyne --Shtypet diqka gabim
+    	System.out.println("Teksti eshte:"+args[2]);
+    	while(!args[1].equals("all") && !args[1].equals("word") && !args[1].equals("letter") && !args[1].equals("symbol") && !args[1].equals("vowel") 
+    		&& !args[1].equals("sentences") && !args[1].equals("lines"))
+    	{
+    		System.out.println("Shtypet diqka gabim!!");
+    		break;
+    	}
+    	// nese argumenti i pare osht all ose word... e thirr at klase
+		 if (args[1].equals("all"))
+		 {
+			 allinone(args);
+		 }
+		 else if (args[1].equals("word"))
+		 {
+			 wordcount(args);
+		 }
+		 else if (args[1].equals("letter"))
+				 {
+			 lettercount(args);
+		 }
+		 else if (args[1].equals("symbol"))
+		 {
+			 symbolcount(args);
+		 }
+		 else if (args[1].equals("vowel"))
+		 {
+			 vowelscons12(args);
+		 }
+		 else if (args[1].equals("sentences"))
+		 {
+			 sentences1(args);
+		 }
+		 else if (args[1].equals("lines"))
+		 {
+			 countLines(args);
+		 }
+		  }
+ 
+    public static void allinone(String [] args) {
+    	//i thirr krejt 
+		 countLines(args); 
+		 sentences1(args);  
+	     vowelscons12(args);  
+	     wordcount(args);  
+	     symbolcount(args); 
+	      lettercount(args);  
+    }
+
+    public static void wordcount(String [] args)  
+    {  
+    	//per shkak se kur e shtyp ni tekst 'null' mdilke qe numri i fjaleve eshte 1 per qata osht if args==0 ...
+      int countwords=1;
+      int countwordsnull=0;
+      if (args[2].length()==0)
+      {
+      System.out.println("Numri i fjaleve eshte:" +countwordsnull );
+      System.exit(1);
+      }
+      for(int i=0;i<args[2].length();i++)  
+      {  
+    	  // nese ka space ather rrite per njo fjalen
+          if (args[2].length()!=0 && args[2].charAt(i)==' ' && args[2].charAt(0)!=' ')
+          	countwords++;
+      }  
+      
+        System.out.println("Numri i fjaleve eshte:"+countwords) ;
+    } 
+    public static void lettercount(String [] args)  
+    {  
+      int countletter=0;
+      
+      for(int i = 0; i < args[2].length(); i++) {    
+    	  //nese osht shkronje rrite per nje shkronjen
+          if(Character.isLetter(args[2].charAt(i)))
+        	  countletter++;    
+      }    
+      System.out.println("Numri i shkronjave eshte:"+countletter);
+    }
+    public static void symbolcount(String [] args)  
+    {  
+      int countsymbol=0;
+      	for(int i = 0; i < args[2].length(); i++) { 
+    	  args[2].charAt(i);
+    	  // nese osht najnjana prej atyne simboleve (krejt qato simbole) rrite per njo simbolet 
+    	  // kemi mujt me bo edhe 
+    	  //if (!Character.isLetter(args[2].charAt(i)) && !Character.isDigit(args[2].charAt(i)) nese nuk osht as shkronje as numer 
+    	  // rrite simbolin
+    	  		/*if(args[2].charAt(i)=='~' || 
+    	  				args[2].charAt(i)=='`' || args[2].charAt(i)=='!' || args[2].charAt(i)=='@' || 
+    	  				args[2].charAt(i)=='#' || args[2].charAt(i)=='$' || 
+    	  				args[2].charAt(i)=='%' || args[2].charAt(i)=='^' || args[2].charAt(i)=='&' ||
+    	  				args[2].charAt(i)=='*' || args[2].charAt(i)=='(' || args[2].charAt(i)==')' || 
+    	  				args[2].charAt(i)=='[' || args[2].charAt(i)==']' || args[2].charAt(i)=='{' || 
+    	  				args[2].charAt(i)=='}' || args[2].charAt(i)=='/' || args[2].charAt(i)=='.' ||
+    	  				args[2].charAt(i)==',' || args[2].charAt(i)=='=' || args[2].charAt(i)=='+' ||
+    	  				args[2].charAt(i)=='-' || args[2].charAt(i)==':' || args[2].charAt(i)==';' || 
+    	  				args[2].charAt(i)=='|' || args[2].charAt(i)=='<' || args[2].charAt(i)=='>' ||
+    	  				args[2].charAt(i)=='"' || args[2].charAt(i)=='_')
+    	  			*/
+    	  if(!Character.isLetter(args[2].charAt(i)) && !Character.isDigit(args[2].charAt(i)) && args[2].charAt(i)!=' ')
+    	  		
+    	  {
+        	 
+              countsymbol++;
+      }    
+    }
+      System.out.println("Numri i simboleve eshte:"+countsymbol);
+    }
+    public static void vowelscons12(String [] args)
+    {
+    	int vowels=0;
+    	int cons=0;
+    	for (int i=0;i<args[2].length();i++)
+    	{
+    		// nese e shtyp njanen prej ktyne shkronjave rrite vowels (zanoren)
+    		// edhe nqofse osht shkronje
+    		if (Character.isLetter(args[2].charAt(i))) {
+    		if(args[2].charAt(i)=='a' || args[2].charAt(i)=='e'
+    				|| args[2].charAt(i)=='i' || args[2].charAt(i)=='o' 
+    				|| args[2].charAt(i)=='u' || args[2].charAt(i)=='y'
+    				|| args[2].charAt(i)=='A' || args[2].charAt(i)=='E' 
+    				|| args[2].charAt(i)=='I' || args[2].charAt(i)=='O' 
+    				|| args[2].charAt(i)=='U' || args[2].charAt(i)=='Y' )
+    		{
+    			vowels++;
+    		}
+    		else {
+    			cons++;
+    			}
+    	}
+    	}
+    	System.out.println("Numri i zanoreve eshte:" +vowels); 
+    	System.out.println("Numri i bashketingelloreve eshte:" +cons);
+    }
+    public static void sentences1(String [] args)
+	{
+    	//logjikisht ni fjali fillon nqofse kemi . ose ! ose ? kshtu qe nqofse kemi najnjo prej ktyne simbolev rritet edhe fjalia 
+		int sent=0;
+		for(int i=0;i<args[2].length();i++)
+		{
+			if(args[2].charAt(i)=='!' || args[2].charAt(i)=='?' || args[2].charAt(i)=='.')
+				sent++;
+		}
+		System.out.println("Numri i fjalive eshte:" +sent);
+	}
+	//Prej internetit//
+    //nese dalim nrresht tri me njonen prej ktyne \r\n... rrite rreshtin
+    public static void countLines(String [] args){
+    	   String[] lines = args[2].split("\r\n|\r|\n");
+    	   System.out.println("Numri i rreshtave eshte:"+ lines.length);
+    	} 
+    }
+
+
+
